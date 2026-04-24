@@ -1,0 +1,21 @@
+{
+  "name": "午睡記録確認支援ツール",
+  "short_name": "午睡チェック",
+  "description": "はいチーズ！の午睡記録をiPad上で確認するためのローカル中心ツールです。",
+  "lang": "ja",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6efe4",
+  "theme_color": "#f6efe4",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
