@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>作業員名簿</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --green-950: #153d30;
+      --green-850: #205642;
+      --green-750: #2b6b52;
+      --green-650: #388064;
+      --green-100: #e3f0e9;
+      --green-50: #f2f8f5;
+      --ink: #17211d;
+      --muted: #5b6963;
+      --line: #d5dfda;
+      --surface: #ffffff;
+      --canvas: #edf3ef;
+      --danger: #a43a36;
+      --danger-dark: #7d2926;
+      --danger-bg: #fff0ef;
+      --warn: #7b5918;
+      --warn-bg: #fff7e6;
+      --info: #315c78;
+      --info-bg: #edf6fb;
+      --nav-height: 72px;
+      --action-height: 88px;
+      --shadow: 0 12px 28px rgba(23, 63, 50, .09);
+      font-family: "Noto Sans JP", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; overflow-x: hidden; background: var(--canvas); color: var(--ink); }
+    body { min-width: 320px; }
+    button, input, select, textarea, a { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid rgba(56, 128, 100, .34); outline-offset: 2px; }
+
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      min-height: 100dvh;
+      margin: 0 auto;
+      overflow-x: hidden;
+      background: var(--surface);
+      box-shadow: 0 0 28px rgba(22, 63, 49, .08);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 64px;
+      padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .97);
+      backdrop-filter: blur(8px);
+    }
+    .topbar.no-back { grid-template-columns: minmax(0, 1fr); }
+    .topbar.no-back .header-spacer { display: none; }
+    .topbar-title { min-width: 0; text-align: center; }
+    .topbar.no-back .topbar-title { text-align: left; }
+    .topbar-title strong { display: block; font-size: 17px; line-height: 1.35; overflow-wrap: anywhere; }
+    .topbar-title span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      font-size: 27px;
+      cursor: pointer;
+    }
+    .icon-button:active { background: var(--green-100); }
+
+    main {
+      min-width: 0;
+      padding: 20px 16px calc(var(--nav-height) + 30px + env(safe-area-inset-bottom));
+    }
+    main.has-action { padding-bottom: calc(var(--nav-height) + var(--action-height) + 38px + env(safe-area-inset-bottom)); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 8px; font-size: 25px; line-height: 1.38; letter-spacing: -.02em; }
+    h2 { margin: 26px 0 12px; font-size: 18px; line-height: 1.45; }
+    h3 { margin: 0 0 5px; font-size: 16px; line-height: 1.45; }
+    p { color: var(--muted); line-height: 1.7; }
+    .lead { margin-bottom: 20px; font-size: 14px; }
+    .eyebrow { margin-bottom: 6px; color: var(--green-750); font-size: 12px; font-weight: 850; letter-spacing: .06em; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; line-height: 1.55; }
+    .section-label { margin: 24px 0 8px; color: var(--muted); font-size: 13px; font-weight: 850; }
+
+    .primary, .secondary, .danger-button, .text-button {
+      min-height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      font-weight: 850;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .primary { width: 100%; border: 1px solid var(--green-850); background: var(--green-850); color: #fff; }
+    .secondary { width: 100%; border: 1px solid var(--green-750); background: #fff; color: var(--green-850); }
+    .danger-button { width: 100%; border: 1px solid var(--danger); background: #fff; color: var(--danger); }
+    .text-button { border: 0; background: transparent; color: var(--green-750); }
+    .primary:disabled, .secondary:disabled { border-color: #b9c5bf; background: #b9c5bf; color: #fff; cursor: not-allowed; }
+    .hero-action {
+      min-height: 64px;
+      margin: 18px 0 24px;
+      padding: 16px 18px;
+      justify-content: space-between;
+      font-size: 17px;
+      box-shadow: 0 8px 22px rgba(37, 94, 73, .18);
+    }
+    .inline-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .inline-actions > * { flex: 1; }
+
+    .demo-note {
+      margin: 0 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .demo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-650); flex: 0 0 auto; }
+
+    .draft-panel {
+      margin: 0 0 26px;
+      padding: 16px;
+      border: 1px solid #a9c8b9;
+      border-radius: 16px;
+      background: var(--green-50);
+    }
+    .draft-panel h2 { margin: 0 0 12px; font-size: 17px; }
+    .draft-meta { display: grid; gap: 7px; margin-bottom: 14px; }
+    .draft-meta div { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 8px; font-size: 13px; line-height: 1.5; }
+    .draft-meta span:first-child { color: var(--muted); }
+    .draft-meta strong { min-width: 0; overflow-wrap: anywhere; }
+    .draft-actions { display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 8px; }
+
+    .list { border-top: 1px solid var(--line); }
+    .row-button {
+      width: 100%;
+      min-height: 64px;
+      padding: 13px 2px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 30px;
+      gap: 10px;
+      align-items: center;
+      text-align: left;
+      cursor: pointer;
+    }
+    .row-button:active { background: var(--green-50); }
+    .row-main { min-width: 0; }
+    .row-title { display: block; font-weight: 850; line-height: 1.5; overflow-wrap: anywhere; }
+    .row-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+    .chevron { color: var(--green-750); font-size: 23px; text-align: center; }
+
+    .step-wrap { margin: 0 0 20px; }
+    .step-caption { margin: 0 0 9px; color: var(--green-750); font-size: 13px; font-weight: 850; }
+    .stepper { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; list-style: none; }
+    .stepper li { min-width: 0; height: 7px; border-radius: 999px; background: #dfe6e2; }
+    .stepper li.done, .stepper li.current { background: var(--green-750); }
+    .stepper li.current { box-shadow: 0 0 0 3px rgba(56, 128, 100, .16); }
+
+    .toolbar { display: flex; gap: 8px; align-items: stretch; margin: 12px 0; }
+    .search {
+      min-width: 0;
+      flex: 1;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid #aebdb5;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .compact-action { width: auto; min-width: 112px; flex: 0 0 auto; padding-inline: 12px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0 7px; }
+    .filter-button {
+      min-width: 72px;
+      min-height: 44px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-weight: 850;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filter-button[aria-pressed="true"] { border-color: var(--green-850); background: var(--green-850); color: #fff; }
+
+    .choice-list { border-top: 1px solid var(--line); }
+    .site-choice {
+      width: 100%;
+      min-height: 132px;
+      padding: 15px 2px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+    .site-choice[aria-pressed="true"] { padding-inline: 12px; border: 1px solid var(--green-750); border-radius: 14px; background: var(--green-50); }
+    .site-choice:disabled { color: inherit; cursor: not-allowed; opacity: .72; }
+    .choice-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .choice-head h3 { min-width: 0; overflow-wrap: anywhere; }
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px; margin-top: 10px; }
+    .choice-grid span { min-width: 0; color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+    .choice-grid b { display: block; color: var(--ink); font-size: 13px; }
+
+    .worker-option {
+      min-height: 78px;
+      padding: 13px 2px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      cursor: pointer;
+    }
+    .worker-option input { width: 23px; height: 23px; margin: 10px 0 0 9px; accent-color: var(--green-750); }
+    .worker-option strong { display: block; line-height: 1.5; }
+    .worker-option .trade { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; }
+    .missing-text { display: block; margin-top: 6px; color: var(--danger); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+    .complete-text { display: block; margin-top: 6px; color: var(--green-750); font-size: 12px; line-height: 1.55; }
+    .selected-summary { margin: 12px 0 6px; color: var(--green-850); font-size: 13px; font-weight: 850; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--green-100);
+      color: var(--green-950);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .status-pill.required { background: var(--danger-bg); color: var(--danger); }
+    .status-pill.recommend { background: var(--warn-bg); color: var(--warn); }
+    .status-pill.inactive { background: #eef1ef; color: #59645f; }
+    .status-pill.info { background: var(--info-bg); color: var(--info); }
+
+    .worker-info-row { min-height: 138px; align-items: start; }
+    .row-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .row-top .row-title { flex: 1; }
+    .field-line { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+    .field-line b { color: var(--ink); }
+
+    .notice-section { margin-top: 24px; }
+    .notice-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .notice-heading h2 { margin: 0; }
+    .count-badge { min-width: 28px; min-height: 28px; padding: 4px 8px; border-radius: 999px; display: grid; place-items: center; font-size: 12px; font-weight: 850; }
+    .count-badge.required { background: var(--danger-bg); color: var(--danger); }
+    .count-badge.recommend { background: var(--warn-bg); color: var(--warn); }
+    .issue-row {
+      min-height: 84px;
+      padding: 13px 2px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px;
+      gap: 10px;
+      align-items: center;
+    }
+    .issue-row strong { display: block; line-height: 1.5; }
+    .issue-row span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+    .issue-row .secondary { min-height: 44px; padding: 8px 10px; }
+
+    .empty-state {
+      padding: 28px 14px;
+      border: 1px dashed #b7c5be;
+      border-radius: 14px;
+      background: #fbfdfc;
+      text-align: center;
+    }
+    .empty-state h2 { margin: 0 0 7px; font-size: 17px; }
+    .empty-state p { margin-bottom: 14px; font-size: 13px; }
+    .empty-state .secondary { max-width: 260px; }
+    .empty-note { margin: 0; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--green-750); font-size: 13px; }
+
+    .facts { display: grid; gap: 0; margin: 0; }
+    .fact { min-width: 0; display: grid; grid-template-columns: minmax(112px, .8fr) minmax(0, 1.2fr); gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .fact dt { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .fact dd { min-width: 0; margin: 0; font-weight: 750; line-height: 1.55; overflow-wrap: anywhere; }
+    .detail-section { margin-top: 24px; }
+    .detail-section h2 { margin: 0 0 6px; font-size: 17px; }
+
+    .fixed-action {
+      position: fixed;
+      z-index: 35;
+      left: 50%;
+      bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(100%, 480px);
+      min-height: var(--action-height);
+      padding: 10px 16px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, .98);
+      box-shadow: 0 -8px 20px rgba(23, 63, 50, .07);
+    }
+    .fixed-action .primary { min-height: 52px; }
+    .action-summary { margin: 0 0 6px; color: var(--green-850); font-size: 12px; font-weight: 850; text-align: center; line-height: 1.35; }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 40;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100%, 480px);
+      height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+      padding: 4px 8px env(safe-area-inset-bottom);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, .98);
+      box-shadow: 0 -6px 18px rgba(23, 63, 50, .07);
+    }
+    .nav-button {
+      min-width: 0;
+      min-height: 60px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 2px;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    .nav-icon { font-size: 21px; line-height: 1; }
+    .nav-button.active { color: var(--green-850); background: var(--green-50); }
+
+    .pdf-preview { margin: 16px 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #e5e7e6; }
+    .pdf-thumb { position: relative; display: block; width: 100%; aspect-ratio: 420 / 297; overflow: hidden; background: #fff; }
+    .pdf-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .pdf-page-label { position: absolute; top: 10px; left: 10px; min-height: 28px; padding: 5px 9px; border-radius: 999px; background: rgba(23, 63, 50, .9); color: #fff; font-size: 12px; font-weight: 850; }
+    .pdf-actions { display: grid; gap: 10px; }
+
+    .editor {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+    .editor-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      min-height: 64px;
+      padding: max(10px, env(safe-area-inset-top)) 10px 10px;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 64px;
+      gap: 4px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .98);
+    }
+    .editor-header h1 { margin: 0; text-align: center; font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; }
+    .editor-header button { min-height: 44px; padding: 6px; border: 0; border-radius: 9px; background: transparent; color: var(--green-750); font-weight: 850; cursor: pointer; }
+    .editor-body { padding: 18px 16px calc(30px + env(safe-area-inset-bottom)); }
+    .form-section { margin: 0 0 28px; padding: 0; border: 0; }
+    .form-section legend { width: 100%; margin: 0 0 14px; padding: 0 0 8px; border-bottom: 1px solid var(--line); font-size: 17px; font-weight: 850; }
+    .form-field { display: grid; gap: 7px; margin-bottom: 18px; }
+    .field-label { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 850; }
+    .required-mark, .optional-mark { min-height: 22px; padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 850; }
+    .required-mark { background: var(--danger-bg); color: var(--danger); }
+    .optional-mark { background: #eef1ef; color: var(--muted); }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 1px solid #aebdb5;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .form-field textarea { min-height: 108px; resize: vertical; line-height: 1.6; }
+    .form-field [aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 2px rgba(164, 58, 54, .1); }
+    .field-error { min-height: 18px; margin: 0; color: var(--danger); font-size: 12px; line-height: 1.5; }
+    .form-error-summary {
+      margin: 0 0 20px;
+      padding: 14px;
+      border: 1px solid var(--danger);
+      border-radius: 10px;
+      background: var(--danger-bg);
+      color: var(--danger-dark);
+    }
+    .form-error-summary strong { display: block; margin-bottom: 6px; font-size: 14px; }
+    .form-error-summary .text-button { min-height: 44px; padding: 5px 0; color: var(--danger-dark); text-decoration: underline; }
+    .choice-group { display: grid; gap: 8px; margin: 8px 0 20px; }
+    .choice { min-height: 48px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 10px; }
+    .choice input { width: 22px; height: 22px; accent-color: var(--green-750); }
+
+    .toast {
+      position: fixed;
+      z-index: 160;
+      left: 50%;
+      bottom: calc(var(--nav-height) + 16px + env(safe-area-inset-bottom));
+      transform: translateX(-50%) translateY(12px);
+      width: min(calc(100% - 28px), 440px);
+      padding: 13px 15px;
+      border-radius: 12px;
+      background: #193f32;
+      color: #fff;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease, transform .16s ease;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { background: var(--danger-dark); }
+    .toast.editor-open { bottom: 20px; }
+
+    .confirm-dialog {
+      width: min(calc(100% - 32px), 420px);
+      padding: 0;
+      border: 0;
+      border-radius: 18px;
+      box-shadow: 0 22px 60px rgba(18, 40, 31, .25);
+    }
+    .confirm-dialog::backdrop { background: rgba(15, 35, 28, .48); }
+    .dialog-body { padding: 20px; }
+    .dialog-body h2 { margin: 0 0 8px; font-size: 19px; }
+    .dialog-body p { margin: 0 0 18px; font-size: 14px; }
+    .dialog-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .dialog-actions button { min-height: 48px; }
+
+    @media (max-width: 370px) {
+      main { padding-inline: 14px; }
+      h1 { font-size: 23px; }
+      .toolbar { flex-direction: column; }
+      .compact-action { width: 100%; }
+      .fact { grid-template-columns: minmax(102px, .8fr) minmax(0, 1.2fr); }
+      .choice-grid { grid-template-columns: 1fr; }
+      .issue-row { grid-template-columns: minmax(0, 1fr) 86px; }
+      .dialog-actions { grid-template-columns: 1fr; }
+    }
+    @media (min-width: 431px) {
+      main { padding-inline: 20px; }
+      .fixed-action { padding-inline: 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar no-back" id="topbar"></header>
+    <main id="main" data-screen="home"></main>
+    <div class="fixed-action" id="fixedAction" hidden></div>
+    <nav class="bottom-nav" id="bottomNav" aria-label="下部ナビゲーション"></nav>
+    <div id="editorRoot"></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog class="confirm-dialog" id="confirmDialog" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="dialog-body">
+      <h2 id="confirmTitle"></h2>
+      <p id="confirmMessage"></p>
+      <div class="dialog-actions">
+        <button class="secondary" type="button" id="confirmCancel">戻る</button>
+        <button class="danger-button" type="button" id="confirmAccept">実行する</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const PDF_PATH = "../roster-pdf/output/roster-poc.pdf";
+      const PDF_THUMB_PATH = "../roster-pdf/assets/source/mlit-worker-roster-preview.jpg";
+      const ROSTER_SCREENS = ["site-select", "worker-select", "site-info", "check", "pdf"];
+      const REGISTRY_SCREENS = ["registry", "workers", "worker-detail", "sites", "site-detail", "company-detail"];
+      const STEP_LABELS = ["現場選択", "作業員選択", "現場別情報", "不足チェック", "PDF確認"];
+      const ROLE_OPTIONS = ["職長", "安全衛生責任者", "作業主任者"];
+      const HEALTH_OPTIONS = ["", "協会けんぽ", "健康保険組合", "建設国保", "国民健康保険", "適用除外"];
+      const PENSION_OPTIONS = ["", "厚生年金", "国民年金", "受給者"];
+      const EMPLOYMENT_OPTIONS = ["", "加入", "適用除外", "日雇保険"];
+
+      const initialWorkers = [
+        { id: "worker-01", name: "匿名作業員 一郎", kana: "トクメイサギョウイン イチロウ", trade: "土工", healthInsurance: "協会けんぽ", pension: "厚生年金", employmentInsurance: "加入", constructionMutual: "有", smeMutual: "無", qualifications: "玉掛け技能講習", active: true },
+        { id: "worker-02", name: "匿名作業員 二郎", kana: "トクメイサギョウイン ジロウ", trade: "型枠大工", healthInsurance: "建設国保", pension: "国民年金", employmentInsurance: "加入", constructionMutual: "有", smeMutual: "無", qualifications: "型枠支保工の組立て等作業主任者", active: true },
+        { id: "worker-03", name: "匿名作業員 三郎", kana: "トクメイサギョウイン サブロウ", trade: "鉄筋工", healthInsurance: "協会けんぽ", pension: "厚生年金", employmentInsurance: "加入", constructionMutual: "有", smeMutual: "無", qualifications: "玉掛け技能講習", active: true },
+        { id: "worker-04", name: "匿名作業員 四郎", kana: "トクメイサギョウイン シロウ", trade: "とび工", healthInsurance: "", pension: "厚生年金", employmentInsurance: "加入", constructionMutual: "有", smeMutual: "無", qualifications: "足場の組立て等作業主任者", active: true },
+        { id: "worker-05", name: "匿名作業員 五郎", kana: "トクメイサギョウイン ゴロウ", trade: "左官", healthInsurance: "健康保険組合", pension: "厚生年金", employmentInsurance: "加入", constructionMutual: "無", smeMutual: "有", qualifications: "研削といし取替え業務特別教育", active: true },
+        { id: "worker-06", name: "匿名作業員 六郎", kana: "トクメイサギョウイン ロクロウ", trade: "電工", healthInsurance: "協会けんぽ", pension: "厚生年金", employmentInsurance: "加入", constructionMutual: "有", smeMutual: "無", qualifications: "低圧電気取扱業務特別教育", active: true },
+        { id: "worker-07", name: "匿名作業員 七郎", kana: "トクメイサギョウイン シチロウ", trade: "配管工", healthInsurance: "国民健康保険", pension: "国民年金", employmentInsurance: "適用除外", constructionMutual: "無", smeMutual: "有", qualifications: "酸素欠乏・硫化水素危険作業特別教育", active: true },
+        { id: "worker-08", name: "匿名作業員 八郎", kana: "トクメイサギョウイン ハチロウ", trade: "重機オペレーター", healthInsurance: "協会けんぽ", pension: "厚生年金", employmentInsurance: "加入", constructionMutual: "有", smeMutual: "無", qualifications: "車両系建設機械運転技能講習", active: true },
+        { id: "worker-09", name: "匿名作業員 九郎", kana: "トクメイサギョウイン クロウ", trade: "溶接工", healthInsurance: "建設国保", pension: "国民年金", employmentInsurance: "日雇保険", constructionMutual: "有", smeMutual: "無", qualifications: "アーク溶接等業務特別教育", active: true }
+      ];
+
+      const initialSites = [
+        { key: "site-01", name: "匿名中央地区再開発工事", siteId: "POC-SITE-0001", manager: "匿名担当者 A", firstTierCompany: "匿名一次建設株式会社", firstTierBusinessId: "POC-BIZ-FIRST", constructionTier: "2次", status: "稼働中", registeredWorkerIds: ["worker-01", "worker-02", "worker-03", "worker-04", "worker-05", "worker-06", "worker-07", "worker-08", "worker-09"] },
+        { key: "site-02", name: "匿名河川設備更新工事", siteId: "POC-SITE-0002", manager: "匿名担当者 B", firstTierCompany: "匿名東部建設株式会社", firstTierBusinessId: "POC-BIZ-EAST", constructionTier: "3次", status: "稼働中", registeredWorkerIds: ["worker-01", "worker-02", "worker-05", "worker-08"] },
+        { key: "site-03", name: "匿名駅前改修工事", siteId: "POC-SITE-0003", manager: "匿名担当者 C", firstTierCompany: "匿名駅前建設株式会社", firstTierBusinessId: "POC-BIZ-STATION", constructionTier: "2次", status: "終了", registeredWorkerIds: ["worker-03", "worker-04", "worker-09"] }
+      ];
+
+      const initialSiteWorker = {
+        "worker-01": { entryDate: "2026-07-01", roles: ["職長", "安全衛生責任者"], dispatchEducationDate: "2026-06-28", acceptanceEducationDate: "2026-07-01", status: "入場中" },
+        "worker-02": { entryDate: "2026-07-01", roles: [], dispatchEducationDate: "2026-06-28", acceptanceEducationDate: "2026-07-01", status: "入場中" },
+        "worker-03": { entryDate: "2026-07-02", roles: ["作業主任者"], dispatchEducationDate: "2026-06-29", acceptanceEducationDate: "", status: "入場中" },
+        "worker-04": { entryDate: "2026-07-02", roles: [], dispatchEducationDate: "2026-06-30", acceptanceEducationDate: "2026-07-02", status: "入場中" },
+        "worker-05": { entryDate: "2026-07-03", roles: [], dispatchEducationDate: "2026-07-01", acceptanceEducationDate: "2026-07-03", status: "入場中" },
+        "worker-06": { entryDate: "", roles: [], dispatchEducationDate: "2026-07-02", acceptanceEducationDate: "2026-07-03", status: "入場中" },
+        "worker-07": { entryDate: "2026-07-04", roles: [], dispatchEducationDate: "", acceptanceEducationDate: "2026-07-04", status: "入場中" },
+        "worker-08": { entryDate: "2026-07-04", roles: [], dispatchEducationDate: "2026-07-04", acceptanceEducationDate: "2026-07-04", status: "入場中" },
+        "worker-09": { entryDate: "2026-07-05", roles: [], dispatchEducationDate: "2026-07-05", acceptanceEducationDate: "2026-07-05", status: "入場中" }
+      };
+
+      const emptySitesMode = new URLSearchParams(location.search).get("demo") === "empty-sites";
+      const state = {
+        screen: "home",
+        workers: structuredClone(initialWorkers),
+        sites: emptySitesMode ? [] : structuredClone(initialSites),
+        ownCompany: { name: "匿名未来施工株式会社", businessId: "POC-BIZ-SELF" },
+        roster: null,
+        activeWorkerId: null,
+        activeSiteKey: null,
+        editor: null,
+        ui: {
+          siteQuery: "",
+          workerQuery: "",
+          workerFilter: "all",
+          registryWorkerQuery: "",
+          registryWorkerFilter: "all",
+          registrySiteQuery: "",
+          registrySiteFilter: "all"
+        },
+        nextWorkerNumber: 10,
+        nextSiteNumber: 4
+      };
+
+      const app = document.getElementById("app");
+      const topbar = document.getElementById("topbar");
+      const main = document.getElementById("main");
+      const fixedAction = document.getElementById("fixedAction");
+      const bottomNav = document.getElementById("bottomNav");
+      const editorRoot = document.getElementById("editorRoot");
+      const toastNode = document.getElementById("toast");
+      const confirmDialog = document.getElementById("confirmDialog");
+      const confirmTitle = document.getElementById("confirmTitle");
+      const confirmMessage = document.getElementById("confirmMessage");
+      const confirmAccept = document.getElementById("confirmAccept");
+      const confirmCancel = document.getElementById("confirmCancel");
+      let toastTimer = null;
+      let confirmHandlers = null;
+      let confirmReturnFocus = null;
+      let restoringEditorHistory = false;
+      let pendingBrowserBackConfirm = false;
+
+      function E(tag, options = {}, children = []) {
+        const element = document.createElement(tag);
+        if (options.className) element.className = options.className;
+        if (options.text !== undefined) element.textContent = String(options.text);
+        if (options.id) element.id = options.id;
+        if (options.type) element.type = options.type;
+        if (options.name) element.name = options.name;
+        if (options.value !== undefined) element.value = options.value;
+        if (options.checked !== undefined) element.checked = options.checked;
+        if (options.disabled !== undefined) element.disabled = options.disabled;
+        if (options.href) element.href = options.href;
+        if (options.attrs) Object.entries(options.attrs).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== false) {
+            const attrValue = key.startsWith("aria-") && typeof value === "boolean" ? String(value) : value === true ? "" : String(value);
+            element.setAttribute(key, attrValue);
+          }
+        });
+        if (options.dataset) Object.entries(options.dataset).forEach(([key, value]) => { element.dataset[key] = String(value); });
+        if (options.on) Object.entries(options.on).forEach(([eventName, handler]) => element.addEventListener(eventName, handler));
+        const list = Array.isArray(children) ? children : [children];
+        list.flat(Infinity).forEach((child) => {
+          if (child === null || child === undefined || child === false) return;
+          element.append(child instanceof Node ? child : document.createTextNode(String(child)));
+        });
+        return element;
+      }
+
+      function B(label, className, onClick, options = {}) {
+        return E("button", { className, text: label, type: "button", disabled: options.disabled, attrs: options.attrs, dataset: options.dataset, on: { click: onClick } });
+      }
+
+      function findWorker(id) { return state.workers.find((worker) => worker.id === id) || null; }
+      function findSite(key) { return state.sites.find((site) => site.key === key) || null; }
+      function activeWorkers() { return state.workers.filter((worker) => worker.active); }
+      function registeredWorkerCount(site) {
+        return (site.registeredWorkerIds || []).filter((workerId) => findWorker(workerId)?.active).length;
+      }
+      function createRoster() {
+        return { siteKey: null, selectedWorkerIds: new Set(), siteWorker: structuredClone(initialSiteWorker), resumeScreen: "site-select" };
+      }
+      function ensureSiteWorker(workerId) {
+        if (!state.roster.siteWorker[workerId]) state.roster.siteWorker[workerId] = { entryDate: "", roles: [], dispatchEducationDate: "", acceptanceEducationDate: "", status: "入場予定" };
+        return state.roster.siteWorker[workerId];
+      }
+
+      function formatDate(value) {
+        if (!value) return "未入力";
+        const parts = String(value).split("-");
+        if (parts.length !== 3) return value;
+        return `${parts[0]}年${Number(parts[1])}月${Number(parts[2])}日`;
+      }
+
+      const WORKER_INFORMATION_REQUIREMENTS = [
+        { field: "name", label: "氏名", section: "basic" },
+        { field: "kana", label: "フリガナ", section: "basic" },
+        { field: "trade", label: "職種", section: "basic" },
+        { field: "healthInsurance", label: "健康保険の加入区分", section: "insurance" },
+        { field: "pension", label: "年金", section: "insurance" },
+        { field: "employmentInsurance", label: "雇用保険", section: "insurance" },
+        { field: "constructionMutual", label: "建退共", section: "retirement" },
+        { field: "smeMutual", label: "中退共", section: "retirement" }
+      ];
+
+      function getWorkerInformationIssues(worker) {
+        return WORKER_INFORMATION_REQUIREMENTS.filter(({ field }) => !String(worker?.[field] ?? "").trim());
+      }
+
+      const fieldLabels = {
+        ...Object.fromEntries(WORKER_INFORMATION_REQUIREMENTS.map(({ field, label }) => [field, label])),
+        entryDate: "入場日", acceptanceEducationDate: "受入教育実施日", dispatchEducationDate: "送り出し教育"
+      };
+
+      function siteWorkerRequiredMissing(workerId) {
+        const details = ensureSiteWorker(workerId);
+        const fields = [];
+        if (!details.entryDate) fields.push("entryDate");
+        if (!details.acceptanceEducationDate) fields.push("acceptanceEducationDate");
+        if (!details.status) fields.push("status");
+        return fields;
+      }
+
+      function requiredIssues() {
+        if (!state.roster) return [];
+        const issues = [];
+        state.roster.selectedWorkerIds.forEach((workerId) => {
+          const worker = findWorker(workerId);
+          if (!worker) return;
+          getWorkerInformationIssues(worker).forEach(({ field, label, section }) => issues.push({ id: `worker-${workerId}-${field}`, kind: "worker", workerId, section, field, name: worker.name, item: label, destination: "作業員情報" }));
+          siteWorkerRequiredMissing(workerId).forEach((field) => issues.push({ id: `siteworker-${workerId}-${field}`, kind: "siteworker", workerId, section: field, field, name: worker.name, item: field === "status" ? "現場での状態" : fieldLabels[field], destination: "現場別情報" }));
+        });
+        return issues;
+      }
+
+      function recommendedIssues() {
+        if (!state.roster) return [];
+        const issues = [];
+        state.roster.selectedWorkerIds.forEach((workerId) => {
+          const details = ensureSiteWorker(workerId);
+          const worker = findWorker(workerId);
+          if (!details.dispatchEducationDate) issues.push({ id: `recommend-${workerId}-dispatch`, kind: "siteworker", workerId, section: "dispatchEducationDate", field: "dispatchEducationDate", name: worker?.name || "作業員", item: "送り出し教育の実施日", destination: "現場別情報" });
+        });
+        return issues;
+      }
+
+      function hideToast() {
+        clearTimeout(toastTimer);
+        toastNode.classList.remove("show");
+        toastNode.hidden = true;
+        toastNode.textContent = "";
+      }
+
+      function showToast(message, type = "success") {
+        clearTimeout(toastTimer);
+        toastNode.textContent = message;
+        toastNode.className = `toast ${type === "error" ? "error" : ""} ${state.editor ? "editor-open" : ""}`.trim();
+        toastNode.setAttribute("role", type === "error" ? "alert" : "status");
+        toastNode.hidden = false;
+        requestAnimationFrame(() => toastNode.classList.add("show"));
+        toastTimer = setTimeout(() => {
+          toastNode.classList.remove("show");
+          setTimeout(() => { toastNode.hidden = true; }, 180);
+        }, 2600);
+      }
+
+      function openConfirm({ title, message, confirmLabel = "実行する", cancelLabel = "戻る", danger = true, cancelPrimary = false, onConfirm, onCancel }) {
+        hideToast();
+        confirmReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        confirmTitle.textContent = title;
+        confirmMessage.textContent = message;
+        confirmAccept.textContent = confirmLabel;
+        confirmCancel.textContent = cancelLabel;
+        confirmCancel.className = cancelPrimary ? "primary" : "secondary";
+        confirmAccept.className = danger ? "danger-button" : "primary";
+        confirmHandlers = { onConfirm, onCancel };
+        confirmDialog.showModal();
+        confirmCancel.focus();
+      }
+
+      function closeConfirm(accepted) {
+        if (!confirmDialog.open) return;
+        confirmDialog.close();
+        const handlers = confirmHandlers;
+        const returnFocus = confirmReturnFocus;
+        confirmHandlers = null;
+        confirmReturnFocus = null;
+        if (accepted) handlers?.onConfirm?.();
+        else {
+          handlers?.onCancel?.();
+          requestAnimationFrame(() => { if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true }); });
+        }
+      }
+
+      confirmAccept.addEventListener("click", () => closeConfirm(true));
+      confirmCancel.addEventListener("click", () => closeConfirm(false));
+      confirmDialog.addEventListener("cancel", (event) => { event.preventDefault(); closeConfirm(false); });
+      confirmDialog.addEventListener("keydown", (event) => {
+        if (event.key !== "Tab") return;
+        const focusable = [...confirmDialog.querySelectorAll('button:not([disabled]), a[href]')].filter((node) => node.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      });
+
+      function screenMeta() {
+        const map = {
+          home: ["作業員名簿", "自社作業員専用", false],
+          "site-select": ["現場を選ぶ", "名簿作成 1 / 5", true],
+          "worker-select": ["作業員を選ぶ", "名簿作成 2 / 5", true],
+          "site-info": ["現場別情報", "名簿作成 3 / 5", true],
+          check: ["不足チェック", "名簿作成 4 / 5", true],
+          pdf: ["PDF確認", "名簿作成 5 / 5", true],
+          registry: ["登録情報", "自社の登録内容", true],
+          workers: ["作業員", "自社作業員", true],
+          "worker-detail": ["作業員情報", findWorker(state.activeWorkerId)?.name || "", true],
+          sites: ["現場", "登録中の現場", true],
+          "site-detail": ["現場情報", findSite(state.activeSiteKey)?.name || "", true],
+          "company-detail": ["自社情報", "1社分の共通情報", true]
+        };
+        return map[state.screen] || map.home;
+      }
+
+      function renderHeader() {
+        const [title, subtitle, hasBack] = screenMeta();
+        topbar.className = `topbar ${hasBack ? "" : "no-back"}`.trim();
+        const children = [];
+        if (hasBack) children.push(B("‹", "icon-button", () => history.back(), { attrs: { "aria-label": "戻る" } }));
+        children.push(E("div", { className: "topbar-title" }, [E("strong", { text: title }), E("span", { text: subtitle })]));
+        if (hasBack) children.push(E("span", { className: "header-spacer", attrs: { "aria-hidden": "true" } }));
+        topbar.replaceChildren(...children);
+      }
+
+      function navItem(label, icon, active, onClick) {
+        return E("button", { className: `nav-button ${active ? "active" : ""}`, type: "button", attrs: active ? { "aria-current": "page" } : {}, on: { click: onClick } }, [
+          E("span", { className: "nav-icon", text: icon, attrs: { "aria-hidden": "true" } }),
+          E("span", { text: label })
+        ]);
+      }
+
+      function renderNav() {
+        const active = ROSTER_SCREENS.includes(state.screen) ? "roster" : REGISTRY_SCREENS.includes(state.screen) ? "registry" : "home";
+        bottomNav.replaceChildren(
+          navItem("ホーム", "⌂", active === "home", () => navigate("home")),
+          navItem("名簿", "▤", active === "roster", () => state.roster ? resumeRoster() : beginRoster()),
+          navItem("登録情報", "⚙", active === "registry", () => navigate("registry"))
+        );
+      }
+
+      function rosterStep(current) {
+        const wrapper = E("div", { className: "step-wrap" });
+        wrapper.append(E("p", { className: "step-caption", text: `${current} / 5　${STEP_LABELS[current - 1]}` }));
+        const list = E("ol", { className: "stepper", attrs: { "aria-label": "名簿作成の工程" } });
+        STEP_LABELS.forEach((label, index) => {
+          const number = index + 1;
+          list.append(E("li", { className: number < current ? "done" : number === current ? "current" : "", dataset: { step: number }, attrs: number === current ? { "aria-current": "step", "aria-label": `${number}. ${label}` } : { "aria-label": `${number}. ${label}` } }));
+        });
+        wrapper.append(list);
+        return wrapper;
+      }
+
+      function facts(items) {
+        const list = E("dl", { className: "facts" });
+        items.forEach(([label, value]) => list.append(E("div", { className: "fact" }, [E("dt", { text: label }), E("dd", { text: value || "未入力" })])));
+        return list;
+      }
+
+      function statusPill(text, kind = "") { return E("span", { className: `status-pill ${kind}`.trim(), text }); }
+
+      function rowButton(title, meta, onClick, options = {}) {
+        return E("button", { className: `row-button ${options.className || ""}`.trim(), type: "button", id: options.id, on: { click: onClick } }, [
+          E("span", { className: "row-main" }, [E("span", { className: "row-title", text: title }), E("span", { className: "row-meta", text: meta })]),
+          E("span", { className: "chevron", text: "›", attrs: { "aria-hidden": "true" } })
+        ]);
+      }
+
+      function emptyState(title, message, actionLabel, onAction) {
+        const children = [E("h2", { text: title }), E("p", { text: message })];
+        if (actionLabel && onAction) children.push(B(actionLabel, "secondary", onAction));
+        return E("div", { className: "empty-state" }, children);
+      }
+
+      function setFixedAction(summary, label, onClick, disabled = false) {
+        fixedAction.hidden = false;
+        const children = [];
+        if (summary) children.push(E("p", { className: "action-summary", text: summary }));
+        children.push(B(label, "primary", onClick, { disabled }));
+        fixedAction.replaceChildren(...children);
+        main.classList.add("has-action");
+      }
+
+      function clearFixedAction() {
+        fixedAction.hidden = true;
+        fixedAction.replaceChildren();
+        main.classList.remove("has-action");
+      }
+
+      function draftStageLabel() {
+        if (!state.roster) return "";
+        const index = ROSTER_SCREENS.indexOf(state.roster.resumeScreen);
+        return index >= 0 ? `${index + 1} / 5 ${STEP_LABELS[index]}` : "1 / 5 現場選択";
+      }
+
+      function homeLink(title, meta, onClick) { return rowButton(title, meta, onClick); }
+
+      function renderHome() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("p", { className: "eyebrow", text: "自社作業員専用" }));
+        fragment.append(E("h1", { text: "作業員名簿を、迷わず作成" }));
+        fragment.append(E("p", { className: "lead", text: "現場と作業員を選び、不足を修正してPDFを確認できます。" }));
+        fragment.append(E("p", { className: "demo-note" }, [E("span", { className: "demo-dot", attrs: { "aria-hidden": "true" } }), E("span", { text: "匿名デモデータ・再読み込みで初期状態に戻ります" })]));
+        fragment.append(E("button", { className: "primary hero-action", type: "button", on: { click: () => beginRoster() } }, [E("span", { text: "新しい作業員名簿を作る" }), E("span", { text: "→", attrs: { "aria-hidden": "true" } })]));
+
+        if (state.roster) {
+          const site = findSite(state.roster.siteKey);
+          const panel = E("section", { className: "draft-panel", dataset: { draft: "true" }, attrs: { "aria-label": "作成途中の名簿" } });
+          panel.append(E("h2", { text: "作成途中の名簿" }));
+          const meta = E("div", { className: "draft-meta" });
+          [["現場名", site?.name || "現場未選択"], ["選択作業員数", `${state.roster.selectedWorkerIds.size}名`], ["現在の工程", draftStageLabel()]].forEach(([label, value]) => meta.append(E("div", {}, [E("span", { text: label }), E("strong", { text: value })])));
+          panel.append(meta);
+          panel.append(E("div", { className: "draft-actions" }, [B("続きから", "primary", resumeRoster), B("破棄", "danger-button", confirmDiscardRoster)]));
+          fragment.append(panel);
+        }
+
+        fragment.append(E("p", { className: "section-label", text: "登録情報" }));
+        const list = E("div", { className: "list" });
+        list.append(homeLink("作業員を登録する", "基本情報、保険、資格など", () => { navigate("workers"); setTimeout(() => openWorkerEditor(null, "workers"), 0); }));
+        list.append(homeLink("現場を登録する", "一次会社、自社施工次数など", () => { navigate("sites"); setTimeout(() => openSiteEditor(null, "sites"), 0); }));
+        list.append(homeLink("自社情報を確認する", "自社名と事業者ID", () => navigate("company-detail")));
+        fragment.append(list);
+        return fragment;
+      }
+
+      function renderSiteSelect() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(rosterStep(1));
+        fragment.append(E("h1", { text: "名簿を作る現場を選択" }));
+        fragment.append(E("p", { className: "lead", text: "稼働中の現場を先に表示します。現場を選んで次へ進んでください。" }));
+        const search = E("input", { className: "search", id: "siteSearch", type: "search", value: state.ui.siteQuery, attrs: { placeholder: "現場名で検索", "aria-label": "現場名で検索", autocomplete: "off" }, on: { input: (event) => updateQuery("siteQuery", event.target) } });
+        fragment.append(E("div", { className: "toolbar" }, search));
+
+        if (state.sites.length === 0) {
+          fragment.append(emptyState("現場が登録されていません", "登録情報から現場を追加してください。", "現場を登録する", () => { navigate("sites"); setTimeout(() => openSiteEditor(null, "sites"), 0); }));
+        } else {
+          const query = state.ui.siteQuery.trim().toLocaleLowerCase("ja");
+          const sites = [...state.sites].sort((a, b) => (a.status === "稼働中" ? 0 : 1) - (b.status === "稼働中" ? 0 : 1)).filter((site) => !query || site.name.toLocaleLowerCase("ja").includes(query));
+          if (!sites.length) fragment.append(emptyState("検索結果がありません", "別の現場名で検索してください。", "検索を解除", () => { state.ui.siteQuery = ""; render(); }));
+          else {
+            const list = E("div", { className: "choice-list" });
+            sites.forEach((site) => {
+              const selected = state.roster.siteKey === site.key;
+              const button = E("button", { className: "site-choice", type: "button", disabled: site.status !== "稼働中", attrs: { "aria-pressed": selected }, dataset: { siteChoice: site.key }, on: { click: () => selectRosterSite(site.key) } });
+              button.append(E("div", { className: "choice-head" }, [E("h3", { text: site.name }), statusPill(selected ? "選択中" : site.status, selected ? "" : site.status === "終了" ? "inactive" : "info") ]));
+              button.append(E("div", { className: "choice-grid" }, [
+                E("span", {}, [E("b", { text: "一次会社名" }), site.firstTierCompany]),
+                E("span", {}, [E("b", { text: "自社施工次数" }), site.constructionTier]),
+                E("span", {}, [E("b", { text: "登録作業員数" }), `${registeredWorkerCount(site)}名`]),
+                E("span", {}, [E("b", { text: "現場ID" }), site.siteId])
+              ]));
+              list.append(button);
+            });
+            fragment.append(list);
+          }
+        }
+        setFixedAction(state.roster.siteKey ? findSite(state.roster.siteKey)?.name : "現場を選択してください", "次へ", () => navigate("worker-select"), !state.roster.siteKey);
+        return fragment;
+      }
+
+      function selectRosterSite(siteKey) {
+        if (!state.roster.siteKey || state.roster.siteKey === siteKey || state.roster.selectedWorkerIds.size === 0) {
+          state.roster.siteKey = siteKey;
+          render({ resetScroll: false });
+          return;
+        }
+        openConfirm({ title: "現場を変更しますか？", message: "選択中の作業員と現場別情報を初期化します。", confirmLabel: "変更する", onConfirm: () => { state.roster.siteKey = siteKey; state.roster.selectedWorkerIds = new Set(); state.roster.siteWorker = structuredClone(initialSiteWorker); render(); } });
+      }
+
+      function filteredRosterWorkers() {
+        const query = state.ui.workerQuery.trim().toLocaleLowerCase("ja");
+        return activeWorkers().filter((worker) => {
+          const missing = getWorkerInformationIssues(worker).length > 0;
+          if (state.ui.workerFilter === "complete" && missing) return false;
+          if (state.ui.workerFilter === "missing" && !missing) return false;
+          return !query || `${worker.name} ${worker.kana} ${worker.trade}`.toLocaleLowerCase("ja").includes(query);
+        });
+      }
+
+      function filterBar(items, current, onSelect) {
+        const bar = E("div", { className: "filters", attrs: { "aria-label": "絞り込み" } });
+        items.forEach(([value, label]) => bar.append(B(label, "filter-button", () => onSelect(value), { attrs: { "aria-pressed": current === value } })));
+        return bar;
+      }
+
+      function renderWorkerSelect() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(rosterStep(2));
+        fragment.append(E("h1", { text: "自社の作業員を選択" }));
+        const visible = filteredRosterWorkers();
+        const allVisibleSelected = visible.length > 0 && visible.every((worker) => state.roster.selectedWorkerIds.has(worker.id));
+        const search = E("input", { className: "search", id: "workerSearch", type: "search", value: state.ui.workerQuery, attrs: { placeholder: "氏名・フリガナ・職種で検索", "aria-label": "氏名・フリガナ・職種で検索", autocomplete: "off" }, on: { input: (event) => updateQuery("workerQuery", event.target) } });
+        fragment.append(E("div", { className: "toolbar" }, [search, B(allVisibleSelected ? "表示中を解除" : "表示中を選択", "secondary compact-action", () => toggleVisibleWorkers(visible, !allVisibleSelected))]));
+        fragment.append(filterBar([["all", "すべて"], ["complete", "作業員情報 入力済み"], ["missing", "作業員情報 不足"]], state.ui.workerFilter, (value) => { state.ui.workerFilter = value; render(); }));
+        fragment.append(E("p", { className: "selected-summary", text: `選択人数：${state.roster.selectedWorkerIds.size}名` }));
+        const list = E("div", { className: "choice-list", attrs: { "aria-live": "polite" } });
+        if (!visible.length) list.append(emptyState("該当する作業員がいません", "検索条件または絞り込みを変更してください。", "条件を解除", () => { state.ui.workerQuery = ""; state.ui.workerFilter = "all"; render(); }));
+        else visible.forEach((worker) => {
+          const missing = getWorkerInformationIssues(worker);
+          const checkbox = E("input", { type: "checkbox", value: worker.id, checked: state.roster.selectedWorkerIds.has(worker.id), attrs: { "aria-label": `${worker.name}を選択` }, dataset: { workerCheck: worker.id }, on: { change: (event) => toggleWorker(worker.id, event.target.checked) } });
+          const info = E("span", {}, [E("strong", { text: worker.name }), E("span", { className: "trade", text: `${worker.kana} ／ ${worker.trade}` })]);
+          info.append(E("span", { className: missing.length ? "missing-text" : "complete-text", text: missing.length ? `作業員情報 不足：${missing.map(({ label }) => label).join("・")}` : "作業員情報 入力済み" }));
+          list.append(E("label", { className: "worker-option" }, [checkbox, info]));
+        });
+        fragment.append(list);
+        const count = state.roster.selectedWorkerIds.size;
+        const pages = Math.ceil(count / 8);
+        const summary = count ? `${count}名・PDF ${pages}ページ予定` : "0名・作業員を選択してください";
+        setFixedAction(summary, "次へ", () => navigate("site-info"), count === 0);
+        return fragment;
+      }
+
+      function toggleVisibleWorkers(workers, select) {
+        workers.forEach((worker) => select ? state.roster.selectedWorkerIds.add(worker.id) : state.roster.selectedWorkerIds.delete(worker.id));
+        render({ resetScroll: false });
+      }
+
+      function toggleWorker(workerId, selected) {
+        if (selected) { state.roster.selectedWorkerIds.add(workerId); ensureSiteWorker(workerId); }
+        else state.roster.selectedWorkerIds.delete(workerId);
+        render({ resetScroll: false });
+      }
+
+      function renderSiteInfo() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(rosterStep(3));
+        fragment.append(E("h1", { text: "現場別情報を確認" }));
+        fragment.append(E("p", { className: "lead", text: "一覧は要約表示です。作業員をタップすると全画面で編集できます。" }));
+        const list = E("div", { className: "list" });
+        state.workers.filter((worker) => state.roster.selectedWorkerIds.has(worker.id)).forEach((worker) => {
+          const details = ensureSiteWorker(worker.id);
+          const missing = siteWorkerRequiredMissing(worker.id);
+          const content = E("span", { className: "row-main" });
+          content.append(E("span", { className: "row-top" }, [E("span", { className: "row-title", text: worker.name }), statusPill(missing.length ? "入力が必要" : details.status, missing.length ? "required" : "") ]));
+          [["入場日", formatDate(details.entryDate)], ["役割", details.roles.length ? details.roles.join("・") : "該当なし"], ["送り出し教育", formatDate(details.dispatchEducationDate)], ["受入教育実施日", formatDate(details.acceptanceEducationDate)], ["現場での状態", details.status || "未入力"]].forEach(([label, value]) => content.append(E("span", { className: "field-line" }, [E("b", { text: `${label}：` }), value])));
+          if (missing.length) content.append(E("span", { className: "missing-text", text: `不足：${missing.map((field) => field === "status" ? "現場での状態" : fieldLabels[field]).join("・")}` }));
+          list.append(E("button", { className: "row-button worker-info-row", type: "button", id: `siteworker-${worker.id}`, dataset: { editSiteworker: worker.id }, on: { click: () => openSiteWorkerEditor(worker.id, "site-info", `siteworker-${worker.id}`) } }, [content, E("span", { className: "chevron", text: "›", attrs: { "aria-hidden": "true" } })]));
+        });
+        fragment.append(list);
+        setFixedAction(`${state.roster.selectedWorkerIds.size}名の現場別情報`, "不足チェックへ", () => navigate("check"));
+        return fragment;
+      }
+
+      function issueSection(title, issues, kind) {
+        const section = E("section", { className: "notice-section" });
+        section.append(E("div", { className: "notice-heading" }, [E("h2", { text: title }), E("span", { className: `count-badge ${kind}`, text: issues.length })]));
+        const list = E("div", { className: "list" });
+        if (!issues.length) list.append(E("p", { className: "empty-note", text: kind === "required" ? "PDFを作成できない不足はありません。" : "おすすめの確認項目はありません。" }));
+        issues.forEach((issue) => {
+          const info = E("div", {}, [E("strong", { text: issue.name }), E("span", { text: `不足項目：${issue.item}` }), E("span", { text: `修正先：${issue.destination}` })]);
+          const edit = B("修正する", "secondary", () => openIssueEditor(issue), { dataset: { issueEdit: issue.id } });
+          list.append(E("div", { className: "issue-row", dataset: { issueKind: issue.kind, issueId: issue.id } }, [info, edit]));
+        });
+        section.append(list);
+        return section;
+      }
+
+      function renderCheck() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(rosterStep(4));
+        fragment.append(E("h1", { text: "PDF作成前の不足を確認" }));
+        fragment.append(E("p", { className: "lead", text: "修正後はこの画面へ戻り、自動で不足を再チェックします。" }));
+        const required = requiredIssues();
+        const recommended = recommendedIssues();
+        fragment.append(issueSection("PDFを作成できない不足", required, "required"));
+        fragment.append(issueSection("確認をおすすめする項目", recommended, "recommend"));
+        setFixedAction(required.length ? `必須不足 ${required.length}件` : "PDFを作成できます", "PDF確認へ", () => navigate("pdf"), required.length > 0);
+        return fragment;
+      }
+
+      function openIssueEditor(issue) {
+        if (issue.kind === "worker") openWorkerEditor(issue.workerId, "check", issue.section, issue.field);
+        else openSiteWorkerEditor(issue.workerId, "check", null, issue.section, issue.field);
+      }
+
+      function renderPdf() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(rosterStep(5));
+        fragment.append(E("h1", { text: "名簿の内容を確認" }));
+        const site = findSite(state.roster.siteKey);
+        const count = state.roster.selectedWorkerIds.size;
+        const pageCount = Math.ceil(count / 8);
+        fragment.append(facts([["現場名", site?.name], ["自社名", state.ownCompany.name], ["一次会社名", site?.firstTierCompany], ["自社施工次数", site?.constructionTier], ["作業員数", `${count}名`], ["PDFページ数", `${pageCount}ページ`]]));
+        fragment.append(E("h2", { text: "PDFサムネイル" }));
+        const image = E("img", { attrs: { src: PDF_THUMB_PATH, alt: "作業員名簿PDFの1ページ目プレビュー" } });
+        const thumb = E("a", { className: "pdf-thumb", href: `${PDF_PATH}#page=1`, attrs: { target: "_blank", rel: "noopener", "aria-label": "作業員名簿PDFの1ページ目を確認" } }, [image, E("span", { className: "pdf-page-label", text: "1ページ目" })]);
+        fragment.append(E("div", { className: "pdf-preview" }, thumb));
+        const actions = E("div", { className: "pdf-actions" });
+        for (let page = 1; page <= pageCount; page += 1) {
+          actions.append(E("a", { className: page === 1 ? "primary" : "secondary", text: `${page}ページ目を確認`, href: `${PDF_PATH}#page=${page}`, attrs: { target: "_blank", rel: "noopener" }, dataset: { pdfPage: page } }));
+        }
+        actions.append(B("内容を修正する", "secondary", () => navigate("check")));
+        fragment.append(actions);
+        return fragment;
+      }
+
+      function renderRegistry() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("h1", { text: "登録情報" }));
+        fragment.append(E("p", { className: "lead", text: "名簿で使う情報を、必要な区分だけ開いて登録・編集します。" }));
+        const list = E("div", { className: "list" });
+        list.append(rowButton("作業員", "一覧、登録、編集、使用停止", () => navigate("workers")));
+        list.append(rowButton("現場", "一覧、登録、編集、終了扱い", () => navigate("sites")));
+        list.append(rowButton("自社情報", "自社名と事業者ID", () => navigate("company-detail")));
+        fragment.append(list);
+        return fragment;
+      }
+
+      function filteredRegistryWorkers() {
+        const query = state.ui.registryWorkerQuery.trim().toLocaleLowerCase("ja");
+        return state.workers.filter((worker) => {
+          if (state.ui.registryWorkerFilter === "active" && !worker.active) return false;
+          if (state.ui.registryWorkerFilter === "inactive" && worker.active) return false;
+          return !query || `${worker.name} ${worker.kana} ${worker.trade}`.toLocaleLowerCase("ja").includes(query);
+        });
+      }
+
+      function renderWorkers() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("h1", { text: "作業員" }));
+        fragment.append(B("作業員を新規登録", "primary", () => openWorkerEditor(null, "workers")));
+        const search = E("input", { className: "search", id: "registryWorkerSearch", type: "search", value: state.ui.registryWorkerQuery, attrs: { placeholder: "氏名・フリガナ・職種で検索", "aria-label": "登録作業員を検索", autocomplete: "off" }, on: { input: (event) => updateQuery("registryWorkerQuery", event.target) } });
+        fragment.append(E("div", { className: "toolbar" }, search));
+        fragment.append(filterBar([["all", "すべて"], ["active", "使用中"], ["inactive", "使用停止"]], state.ui.registryWorkerFilter, (value) => { state.ui.registryWorkerFilter = value; render(); }));
+        const workers = filteredRegistryWorkers();
+        if (!workers.length) fragment.append(emptyState("該当する作業員がいません", "検索条件または絞り込みを変更してください。", "条件を解除", () => { state.ui.registryWorkerQuery = ""; state.ui.registryWorkerFilter = "all"; render(); }));
+        else {
+          const list = E("div", { className: "list" });
+          workers.forEach((worker) => {
+            const missing = getWorkerInformationIssues(worker);
+            const meta = `${worker.trade || "職種未入力"} ／ ${worker.active ? (missing.length ? `作業員情報 不足 ${missing.length}件` : "作業員情報 入力済み") : "使用停止"}`;
+            list.append(rowButton(worker.name || "氏名未入力", meta, () => { state.activeWorkerId = worker.id; navigate("worker-detail"); }));
+          });
+          fragment.append(list);
+        }
+        return fragment;
+      }
+
+      function detailSection(title, items) { return E("section", { className: "detail-section" }, [E("h2", { text: title }), facts(items)]); }
+
+      function renderWorkerDetail() {
+        const worker = findWorker(state.activeWorkerId);
+        if (!worker) return emptyState("作業員が見つかりません", "一覧へ戻って選び直してください。", "一覧へ戻る", () => navigate("workers"));
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("h1", { text: worker.name || "氏名未入力" }));
+        const workerIssues = getWorkerInformationIssues(worker);
+        fragment.append(statusPill(worker.active ? (workerIssues.length ? `作業員情報 不足 ${workerIssues.length}件` : "作業員情報 入力済み") : "使用停止", worker.active ? (workerIssues.length ? "required" : "") : "inactive"));
+        fragment.append(detailSection("基本情報", [["氏名", worker.name], ["フリガナ", worker.kana], ["職種", worker.trade]]));
+        fragment.append(detailSection("健康保険・年金・雇用保険", [["健康保険の加入区分", worker.healthInsurance], ["年金", worker.pension], ["雇用保険", worker.employmentInsurance]]));
+        fragment.append(detailSection("建退共・中退共", [["建退共", worker.constructionMutual], ["中退共", worker.smeMutual]]));
+        fragment.append(detailSection("教育・資格", [["教育・資格", worker.qualifications || "未入力"]]));
+        fragment.append(E("div", { className: "inline-actions" }, [B("編集する", "primary", () => openWorkerEditor(worker.id, "worker-detail")), B(worker.active ? "使用停止" : "使用を再開", worker.active ? "danger-button" : "secondary", () => toggleWorkerActive(worker))]));
+        return fragment;
+      }
+
+      function toggleWorkerActive(worker) {
+        if (!worker.active) { worker.active = true; render(); showToast("作業員の使用を再開しました"); return; }
+        const selected = state.roster?.selectedWorkerIds.has(worker.id);
+        openConfirm({ title: "作業員を使用停止にしますか？", message: selected ? "名簿の選択からも外れます。登録情報は削除されません。" : "登録情報は削除されず、いつでも使用を再開できます。", confirmLabel: "使用停止にする", onConfirm: () => { worker.active = false; state.roster?.selectedWorkerIds.delete(worker.id); render(); showToast("作業員を使用停止にしました"); } });
+      }
+
+      function filteredRegistrySites() {
+        const query = state.ui.registrySiteQuery.trim().toLocaleLowerCase("ja");
+        return [...state.sites].sort((a, b) => (a.status === "稼働中" ? 0 : 1) - (b.status === "稼働中" ? 0 : 1)).filter((site) => {
+          if (state.ui.registrySiteFilter === "active" && site.status !== "稼働中") return false;
+          if (state.ui.registrySiteFilter === "ended" && site.status !== "終了") return false;
+          return !query || `${site.name} ${site.siteId} ${site.firstTierCompany}`.toLocaleLowerCase("ja").includes(query);
+        });
+      }
+
+      function renderSites() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("h1", { text: "現場" }));
+        fragment.append(B("現場を新規登録", "primary", () => openSiteEditor(null, "sites")));
+        const search = E("input", { className: "search", id: "registrySiteSearch", type: "search", value: state.ui.registrySiteQuery, attrs: { placeholder: "現場名・現場ID・一次会社名で検索", "aria-label": "登録現場を検索", autocomplete: "off" }, on: { input: (event) => updateQuery("registrySiteQuery", event.target) } });
+        fragment.append(E("div", { className: "toolbar" }, search));
+        fragment.append(filterBar([["all", "すべて"], ["active", "稼働中"], ["ended", "終了"]], state.ui.registrySiteFilter, (value) => { state.ui.registrySiteFilter = value; render(); }));
+        const sites = filteredRegistrySites();
+        if (!sites.length) fragment.append(emptyState(state.sites.length ? "該当する現場がありません" : "現場が登録されていません", state.sites.length ? "検索条件を変更してください。" : "最初の現場を登録してください。", state.sites.length ? "条件を解除" : "現場を登録する", () => { if (state.sites.length) { state.ui.registrySiteQuery = ""; state.ui.registrySiteFilter = "all"; render(); } else openSiteEditor(null, "sites"); }));
+        else {
+          const list = E("div", { className: "list" });
+          sites.forEach((site) => list.append(rowButton(site.name, `${site.siteId} ／ ${site.status}`, () => { state.activeSiteKey = site.key; navigate("site-detail"); })));
+          fragment.append(list);
+        }
+        return fragment;
+      }
+
+      function renderSiteDetail() {
+        const site = findSite(state.activeSiteKey);
+        if (!site) return emptyState("現場が見つかりません", "一覧へ戻って選び直してください。", "一覧へ戻る", () => navigate("sites"));
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("h1", { text: site.name }));
+        fragment.append(statusPill(site.status, site.status === "終了" ? "inactive" : ""));
+        fragment.append(facts([["現場名", site.name], ["現場ID", site.siteId], ["担当者", site.manager || "未入力"], ["一次会社名", site.firstTierCompany], ["一次会社事業者ID", site.firstTierBusinessId || "未入力"], ["自社施工次数", site.constructionTier]]));
+        fragment.append(E("div", { className: "inline-actions" }, [B("編集する", "primary", () => openSiteEditor(site.key, "site-detail")), B(site.status === "稼働中" ? "終了扱い" : "稼働中に戻す", site.status === "稼働中" ? "danger-button" : "secondary", () => toggleSiteStatus(site))]));
+        return fragment;
+      }
+
+      function toggleSiteStatus(site) {
+        if (site.status === "終了") { site.status = "稼働中"; render(); showToast("現場を稼働中に戻しました"); return; }
+        const used = state.roster?.siteKey === site.key;
+        openConfirm({ title: "現場を終了扱いにしますか？", message: used ? "作成途中の名簿では現場未選択に戻ります。登録情報は削除されません。" : "登録情報は削除されず、一覧の終了へ移動します。", confirmLabel: "終了扱いにする", onConfirm: () => { site.status = "終了"; if (used) { state.roster.siteKey = null; state.roster.resumeScreen = "site-select"; } render(); showToast("現場を終了扱いにしました"); } });
+      }
+
+      function renderCompanyDetail() {
+        const fragment = document.createDocumentFragment();
+        fragment.append(E("h1", { text: "自社情報" }));
+        fragment.append(E("p", { className: "lead", text: "初期版では1社分だけを扱い、名簿へ共通で反映します。" }));
+        fragment.append(facts([["自社名", state.ownCompany.name], ["事業者ID", state.ownCompany.businessId]]));
+        fragment.append(B("自社情報を編集する", "secondary", () => openCompanyEditor("company-detail")));
+        return fragment;
+      }
+
+      function renderScreen() {
+        const renderers = {
+          home: renderHome,
+          "site-select": renderSiteSelect,
+          "worker-select": renderWorkerSelect,
+          "site-info": renderSiteInfo,
+          check: renderCheck,
+          pdf: renderPdf,
+          registry: renderRegistry,
+          workers: renderWorkers,
+          "worker-detail": renderWorkerDetail,
+          sites: renderSites,
+          "site-detail": renderSiteDetail,
+          "company-detail": renderCompanyDetail
+        };
+        clearFixedAction();
+        main.dataset.screen = state.screen;
+        main.replaceChildren((renderers[state.screen] || renderHome)());
+      }
+
+      function render(options = {}) {
+        const resetScroll = options.resetScroll !== false;
+        const scrollPosition = window.scrollY;
+        renderHeader();
+        renderScreen();
+        renderNav();
+        if (resetScroll) window.scrollTo({ top: 0, behavior: "auto" });
+        else window.scrollTo({ top: scrollPosition, behavior: "auto" });
+        if (options.focusId) requestAnimationFrame(() => {
+          const target = document.getElementById(options.focusId);
+          if (target) { target.focus({ preventScroll: true }); if (typeof options.selection === "number" && target.setSelectionRange) target.setSelectionRange(options.selection, options.selection); }
+        });
+      }
+
+      function updateQuery(key, input) {
+        state.ui[key] = input.value;
+        const position = input.selectionStart;
+        render({ resetScroll: false, focusId: input.id, selection: position });
+      }
+
+      function navigate(screen, options = {}) {
+        if (screen === "pdf" && requiredIssues().length) { showToast("必須不足を修正してください", "error"); return; }
+        if (screen === "site-info" && (!state.roster || state.roster.selectedWorkerIds.size === 0)) return;
+        state.screen = screen;
+        if (state.roster && ROSTER_SCREENS.includes(screen)) state.roster.resumeScreen = screen;
+        if (options.replace) history.replaceState({ screen }, "");
+        else history.pushState({ screen }, "");
+        render();
+      }
+
+      function beginRoster(force = false) {
+        if (state.roster && !force) {
+          openConfirm({ title: "新しい名簿を作りますか？", message: "現在の作成途中の名簿は破棄されます。登録情報は残ります。", confirmLabel: "新しく作る", onConfirm: () => beginRoster(true) });
+          return;
+        }
+        state.roster = createRoster();
+        state.ui.siteQuery = "";
+        state.ui.workerQuery = "";
+        state.ui.workerFilter = "all";
+        navigate("site-select");
+      }
+
+      function resumeRoster() {
+        if (!state.roster) { beginRoster(); return; }
+        let screen = state.roster.resumeScreen || "site-select";
+        if (!state.roster.siteKey && ROSTER_SCREENS.indexOf(screen) > 0) screen = "site-select";
+        if (state.roster.selectedWorkerIds.size === 0 && ROSTER_SCREENS.indexOf(screen) > 1) screen = "worker-select";
+        navigate(screen);
+      }
+
+      function confirmDiscardRoster() {
+        openConfirm({ title: "作成途中の名簿を破棄しますか？", message: "選択した現場・作業員・現場別情報だけが消えます。登録情報は残ります。", confirmLabel: "破棄する", onConfirm: () => { state.roster = null; render(); showToast("作成途中の名簿を破棄しました"); } });
+      }
+
+      function inputSnapshot(form) {
+        const values = [];
+        new FormData(form).forEach((value, key) => values.push(`${key}=${value}`));
+        return values.sort().join("&");
+      }
+
+      function setBackgroundInert(inert) {
+        [topbar, main, fixedAction, bottomNav].forEach((node) => { node.inert = inert; });
+      }
+
+      function openEditor(context) {
+        const opener = document.activeElement;
+        state.editor = { dirty: false, errors: {}, returnScroll: window.scrollY, opener, ...context };
+        renderEditor();
+        setBackgroundInert(true);
+        document.body.style.overflow = "hidden";
+        history.pushState({ screen: state.screen, editor: true }, "");
+      }
+
+      function openWorkerEditor(workerId, returnScreen, section = "basic", focusField = null) {
+        openEditor({ kind: "worker", mode: workerId ? "edit" : "new", id: workerId, section, focusField, returnScreen, returnAnchor: null });
+      }
+
+      function openSiteEditor(siteKey, returnScreen) { openEditor({ kind: "site", mode: siteKey ? "edit" : "new", id: siteKey, returnScreen, returnAnchor: null }); }
+      function openCompanyEditor(returnScreen) { openEditor({ kind: "company", mode: "edit", id: "own", returnScreen, returnAnchor: null }); }
+      function openSiteWorkerEditor(workerId, returnScreen, returnAnchor = null, section = null, focusField = null) { openEditor({ kind: "siteworker", mode: "edit", id: workerId, section, focusField, returnScreen, returnAnchor }); }
+
+      function editorTitle() {
+        const editor = state.editor;
+        if (editor.kind === "worker") return editor.mode === "new" ? "作業員を新規登録" : `${findWorker(editor.id)?.name || "作業員"}を編集`;
+        if (editor.kind === "site") return editor.mode === "new" ? "現場を新規登録" : "現場情報を編集";
+        if (editor.kind === "company") return "自社情報を編集";
+        return `${findWorker(editor.id)?.name || "作業員"}の現場別情報`;
+      }
+
+      function field(formSection, { name, label, value = "", type = "text", required = false, options = null, multiline = false, placeholder = "" }) {
+        const wrapper = E("div", { className: "form-field" });
+        const inputId = `edit-${name}`;
+        wrapper.append(E("label", { className: "field-label", attrs: { for: inputId } }, [E("span", { text: label }), E("span", { className: required ? "required-mark" : "optional-mark", text: required ? "必須" : "任意" })]));
+        let control;
+        if (options) {
+          control = E("select", { id: inputId, name });
+          options.forEach((option) => control.append(E("option", { text: option || "選択してください", value: option, attrs: option === value ? { selected: true } : {} })));
+          control.value = value;
+        } else if (multiline) control = E("textarea", { id: inputId, name, value, attrs: { placeholder } });
+        else control = E("input", { id: inputId, name, type, value, attrs: { placeholder, autocomplete: "off" } });
+        control.required = required;
+        const error = E("p", { className: "field-error", id: `error-${name}`, dataset: { errorFor: name }, attrs: { "aria-live": "polite" } });
+        control.setAttribute("aria-describedby", error.id);
+        wrapper.append(control, error);
+        formSection.append(wrapper);
+        return control;
+      }
+
+      function formSection(form, id, title) {
+        const section = E("fieldset", { className: "form-section", id: `editor-section-${id}` });
+        section.append(E("legend", { text: title }));
+        form.append(section);
+        return section;
+      }
+
+      function renderWorkerForm(form) {
+        const worker = state.editor.mode === "edit" ? findWorker(state.editor.id) : { name: "", kana: "", trade: "", healthInsurance: "", pension: "", employmentInsurance: "", constructionMutual: "", smeMutual: "", qualifications: "" };
+        let section = formSection(form, "basic", "基本情報");
+        field(section, { name: "name", label: "氏名", value: worker.name, required: true });
+        field(section, { name: "kana", label: "フリガナ", value: worker.kana, required: true });
+        field(section, { name: "trade", label: "職種", value: worker.trade, required: true });
+        section = formSection(form, "insurance", "健康保険・年金・雇用保険");
+        field(section, { name: "healthInsurance", label: "健康保険の加入区分", value: worker.healthInsurance, required: true, options: HEALTH_OPTIONS });
+        field(section, { name: "pension", label: "年金", value: worker.pension, required: true, options: PENSION_OPTIONS });
+        field(section, { name: "employmentInsurance", label: "雇用保険", value: worker.employmentInsurance, required: true, options: EMPLOYMENT_OPTIONS });
+        section = formSection(form, "retirement", "建退共・中退共");
+        field(section, { name: "constructionMutual", label: "建退共", value: worker.constructionMutual, required: true, options: ["", "有", "無"] });
+        field(section, { name: "smeMutual", label: "中退共", value: worker.smeMutual, required: true, options: ["", "有", "無"] });
+        section = formSection(form, "education", "教育・資格");
+        field(section, { name: "qualifications", label: "教育・資格", value: worker.qualifications, multiline: true, placeholder: "資格名を入力" });
+      }
+
+      function renderSiteForm(form) {
+        const site = state.editor.mode === "edit" ? findSite(state.editor.id) : { name: "", siteId: "", manager: "", firstTierCompany: "", firstTierBusinessId: "", constructionTier: "", status: "稼働中" };
+        const section = formSection(form, "site", "現場情報");
+        field(section, { name: "name", label: "現場名", value: site.name, required: true });
+        field(section, { name: "siteId", label: "現場ID", value: site.siteId, required: true });
+        field(section, { name: "manager", label: "担当者", value: site.manager });
+        field(section, { name: "firstTierCompany", label: "一次会社名", value: site.firstTierCompany, required: true });
+        field(section, { name: "firstTierBusinessId", label: "一次会社事業者ID", value: site.firstTierBusinessId });
+        field(section, { name: "constructionTier", label: "自社施工次数", value: site.constructionTier, required: true, options: ["", "1次", "2次", "3次", "4次以降"] });
+        field(section, { name: "status", label: "稼働状態", value: site.status, required: true, options: ["稼働中", "終了"] });
+      }
+
+      function renderCompanyForm(form) {
+        const section = formSection(form, "company", "自社情報");
+        field(section, { name: "name", label: "自社名", value: state.ownCompany.name, required: true });
+        field(section, { name: "businessId", label: "事業者ID", value: state.ownCompany.businessId, required: true });
+      }
+
+      function renderSiteWorkerForm(form) {
+        const worker = findWorker(state.editor.id);
+        const details = ensureSiteWorker(state.editor.id);
+        form.append(E("p", { className: "lead", text: `${worker.name} ／ ${findSite(state.roster.siteKey)?.name || "現場未選択"}` }));
+        const section = formSection(form, "siteworker", "現場別情報");
+        field(section, { name: "entryDate", label: "入場日", value: details.entryDate, type: "date", required: true });
+        section.append(E("span", { className: "field-label", text: "役割（任意）" }));
+        const roles = E("div", { className: "choice-group" });
+        ROLE_OPTIONS.forEach((role) => roles.append(E("label", { className: "choice" }, [E("input", { type: "checkbox", name: "roles", value: role, checked: details.roles.includes(role) }), E("span", { text: role })])));
+        section.append(roles);
+        field(section, { name: "dispatchEducationDate", label: "送り出し教育", value: details.dispatchEducationDate, type: "date" });
+        field(section, { name: "acceptanceEducationDate", label: "受入教育実施日", value: details.acceptanceEducationDate, type: "date", required: true });
+        field(section, { name: "status", label: "現場での状態", value: details.status, required: true, options: ["", "入場予定", "入場中", "退場"] });
+      }
+
+      function renderEditor() {
+        editorRoot.replaceChildren();
+        const editor = E("section", { className: "editor", attrs: { role: "dialog", "aria-modal": "true", "aria-labelledby": "editorTitle" } });
+        const header = E("header", { className: "editor-header" }, [B("戻る", "", requestCloseEditor, { dataset: { editorBack: "true" } }), E("h1", { id: "editorTitle", text: editorTitle() }), E("button", { text: "保存", type: "submit", attrs: { form: "editorForm" }, dataset: { editorSave: "true" } })]);
+        const form = E("form", { className: "editor-body", id: "editorForm", attrs: { novalidate: true }, on: { submit: saveEditor, input: updateEditorDirty, change: updateEditorDirty } });
+        const errorSummary = E("div", { className: "form-error-summary", id: "formErrorSummary", attrs: { hidden: true, role: "alert", "aria-live": "assertive", tabindex: "-1" } }, [
+          E("strong", { id: "formErrorSummaryText" }),
+          B("最初のエラー項目へ移動", "text-button", focusFirstFormError, { dataset: { firstError: "true" } })
+        ]);
+        form.append(errorSummary);
+        if (state.editor.kind === "worker") renderWorkerForm(form);
+        else if (state.editor.kind === "site") renderSiteForm(form);
+        else if (state.editor.kind === "company") renderCompanyForm(form);
+        else renderSiteWorkerForm(form);
+        editor.append(header, form);
+        editorRoot.append(editor);
+        state.editor.initialSnapshot = inputSnapshot(form);
+        requestAnimationFrame(() => {
+          const sectionId = state.editor?.kind === "siteworker" ? "siteworker" : state.editor?.section;
+          const section = sectionId ? document.getElementById(`editor-section-${sectionId}`) : null;
+          const namedControl = state.editor?.focusField ? form.elements.namedItem(state.editor.focusField) : null;
+          const first = namedControl instanceof HTMLElement ? namedControl : section?.querySelector("input, select, textarea") || form.querySelector("input, select, textarea");
+          if (first) {
+            first.scrollIntoView({ block: "center", behavior: "auto" });
+            first.focus({ preventScroll: true });
+          }
+        });
+      }
+
+      function updateEditorDirty(event) {
+        if (!state.editor) return;
+        state.editor.dirty = inputSnapshot(event.currentTarget) !== state.editor.initialSnapshot;
+        if (Object.keys(state.editor.errors || {}).length) {
+          state.editor.errors = validateEditor(readForm(event.currentTarget));
+          showFormErrors(state.editor.errors, { focus: false });
+        }
+      }
+
+      function requestCloseEditor() {
+        if (!state.editor) return;
+        if (!state.editor.dirty) { history.back(); return; }
+        openConfirm({ title: "未保存の入力があります", message: "入力内容を破棄して戻りますか？", confirmLabel: "破棄して戻る", cancelLabel: "編集を続ける", cancelPrimary: true, onConfirm: () => { state.editor.dirty = false; history.back(); } });
+      }
+
+      function readForm(form) {
+        const data = new FormData(form);
+        const values = {};
+        data.forEach((value, key) => {
+          if (key === "roles") return;
+          values[key] = String(value).trim();
+        });
+        values.roles = data.getAll("roles").map(String);
+        return values;
+      }
+
+      function validateEditor(values) {
+        const errors = {};
+        if (state.editor.kind === "worker") getWorkerInformationIssues(values).forEach(({ field }) => { errors[field] = "入力してください"; });
+        else {
+          const required = state.editor.kind === "site" ? ["name", "siteId", "firstTierCompany", "constructionTier", "status"]
+            : state.editor.kind === "company" ? ["name", "businessId"] : ["entryDate", "acceptanceEducationDate", "status"];
+          required.forEach((name) => { if (!values[name]) errors[name] = "入力してください"; });
+        }
+        if (state.editor.kind === "site" && values.siteId) {
+          const duplicate = state.sites.find((site) => site.siteId === values.siteId && site.key !== state.editor.id);
+          if (duplicate) errors.siteId = "同じ現場IDが登録されています";
+        }
+        return errors;
+      }
+
+      function focusFirstFormError() {
+        const first = document.querySelector('#editorForm [aria-invalid="true"]');
+        if (!first) return;
+        first.scrollIntoView({ block: "center", behavior: "auto" });
+        first.focus({ preventScroll: true });
+      }
+
+      function showFormErrors(errors, options = {}) {
+        const form = document.getElementById("editorForm");
+        const summary = document.getElementById("formErrorSummary");
+        const summaryText = document.getElementById("formErrorSummaryText");
+        form.querySelectorAll("[data-error-for]").forEach((error) => { error.textContent = ""; });
+        form.querySelectorAll("[aria-invalid]").forEach((control) => control.removeAttribute("aria-invalid"));
+        Object.entries(errors).forEach(([name, message]) => {
+          const control = form.elements.namedItem(name);
+          const error = form.querySelector(`[data-error-for="${CSS.escape(name)}"]`);
+          if (control instanceof HTMLElement) control.setAttribute("aria-invalid", "true");
+          if (error) error.textContent = message;
+        });
+        const count = Object.keys(errors).length;
+        summary.hidden = count === 0;
+        summaryText.textContent = count ? `入力内容を${count}件確認してください` : "";
+        if (options.focus !== false) focusFirstFormError();
+      }
+
+      function saveEditor(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const values = readForm(form);
+        const errors = validateEditor(values);
+        if (Object.keys(errors).length) {
+          state.editor.errors = errors;
+          showFormErrors(errors);
+          showToast(`入力内容を${Object.keys(errors).length}件確認してください`, "error");
+          return;
+        }
+        let message = "保存しました";
+        if (state.editor.kind === "worker") {
+          if (state.editor.mode === "new") {
+            const id = `worker-${String(state.nextWorkerNumber++).padStart(2, "0")}`;
+            state.workers.push({ id, ...values, active: true });
+            state.activeWorkerId = id;
+            message = "作業員を登録しました";
+          } else Object.assign(findWorker(state.editor.id), values);
+        } else if (state.editor.kind === "site") {
+          if (state.editor.mode === "new") {
+            const key = `site-${String(state.nextSiteNumber++).padStart(2, "0")}`;
+            state.sites.push({ key, registeredWorkerIds: [], ...values });
+            state.activeSiteKey = key;
+            message = "現場を登録しました";
+          } else Object.assign(findSite(state.editor.id), values);
+        } else if (state.editor.kind === "company") Object.assign(state.ownCompany, values);
+        else state.roster.siteWorker[state.editor.id] = { entryDate: values.entryDate, roles: values.roles, dispatchEducationDate: values.dispatchEducationDate, acceptanceEducationDate: values.acceptanceEducationDate, status: values.status };
+        state.editor.dirty = false;
+        state.editor.afterSaveMessage = message;
+        history.back();
+      }
+
+      function finishCloseEditor() {
+        const editor = state.editor;
+        if (!editor) return;
+        state.editor = null;
+        editorRoot.replaceChildren();
+        setBackgroundInert(false);
+        document.body.style.overflow = "";
+        state.screen = editor.returnScreen || state.screen;
+        render({ resetScroll: false });
+        requestAnimationFrame(() => {
+          if (editor.returnAnchor) document.getElementById(editor.returnAnchor)?.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+          else window.scrollTo({ top: editor.returnScroll || 0, behavior: "auto" });
+          if (!editor.returnAnchor && editor.opener instanceof HTMLElement && editor.opener.isConnected) editor.opener.focus({ preventScroll: true });
+        });
+        if (editor.afterSaveMessage) showToast(editor.afterSaveMessage);
+      }
+
+      window.addEventListener("popstate", (event) => {
+        if (restoringEditorHistory) {
+          restoringEditorHistory = false;
+          if (pendingBrowserBackConfirm) {
+            pendingBrowserBackConfirm = false;
+            openConfirm({ title: "未保存の入力があります", message: "入力内容を破棄して戻りますか？", confirmLabel: "破棄して戻る", cancelLabel: "編集を続ける", cancelPrimary: true, onConfirm: () => { state.editor.dirty = false; history.back(); } });
+          }
+          return;
+        }
+        if (state.editor) {
+          if (state.editor.dirty) {
+            pendingBrowserBackConfirm = true;
+            restoringEditorHistory = true;
+            history.forward();
+            return;
+          }
+          finishCloseEditor();
+          return;
+        }
+        state.screen = event.state?.screen || "home";
+        render();
+      });
+
+      window.addEventListener("beforeunload", (event) => {
+        if (!state.editor?.dirty) return;
+        event.preventDefault();
+        event.returnValue = "";
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (confirmDialog.open) return;
+        if (!state.editor) return;
+        if (event.key === "Escape") { event.preventDefault(); requestCloseEditor(); return; }
+        if (event.key !== "Tab") return;
+        const focusable = [...editorRoot.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]')].filter((node) => node.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      });
+
+      history.replaceState({ screen: "home" }, "");
+      render();
+    })();
+  </script>
+</body>
+</html>

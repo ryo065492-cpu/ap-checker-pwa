@@ -1,0 +1,77 @@
+{
+  "workerInformation": {
+    "workers": [
+      { "id": "worker-01", "name": "匿名 建設太郎", "furigana": "とくめい けんせつたろう", "birthDate": "1988-04-10", "employmentDate": "2020-04-01", "ccusWorkerId": "POC-WORKER-0001" },
+      { "id": "worker-02", "name": "匿名 安全花子", "furigana": "とくめい あんぜんはなこ", "birthDate": "1994-07-14", "employmentDate": "2021-10-01", "ccusWorkerId": null },
+      { "id": "worker-03", "name": "匿名 配管次郎", "furigana": "とくめい はいかんじろう", "birthDate": "1979-12-02", "employmentDate": "2016-06-15", "ccusWorkerId": "POC-WORKER-0003" },
+      { "id": "worker-04", "name": "匿名 電設三郎", "furigana": "とくめい でんせつさぶろう", "birthDate": "2001-09-30", "employmentDate": "2024-04-01", "ccusWorkerId": null },
+      { "id": "worker-05", "name": "匿名試験用非常に長い氏名五郎", "furigana": "とくめいしけんようひじょうにながいしめいごろう", "birthDate": "1990-02-18", "employmentDate": "2018-03-01", "ccusWorkerId": "POC-WORKER-0005" },
+      { "id": "worker-06", "name": "匿名 鉄筋六郎", "furigana": "とくめい てっきんろくろう", "birthDate": "1985-11-11", "employmentDate": "2015-11-01", "ccusWorkerId": "POC-WORKER-0006" },
+      { "id": "worker-07", "name": "匿名 左官七海", "furigana": "とくめい さかんななみ", "birthDate": "1998-06-25", "employmentDate": "2022-05-09", "ccusWorkerId": null },
+      { "id": "worker-08", "name": "匿名 防水八郎", "furigana": "とくめい ぼうすいはちろう", "birthDate": "1992-01-08", "employmentDate": "2019-08-20", "ccusWorkerId": "POC-WORKER-0008" },
+      { "id": "worker-09", "name": "匿名 内装九美", "furigana": "とくめい ないそうくみ", "birthDate": "1996-03-03", "employmentDate": "2023-01-16", "ccusWorkerId": null }
+    ]
+  },
+  "siteInformation": {
+    "sites": [
+      { "id": "site-01", "name": "匿名中央地区再開発工事", "supervisorName": "匿名 現場所長", "ccusSiteId": "POC-SITE-0001" }
+    ]
+  },
+  "siteWorkerInformation": {
+    "assignments": [
+      { "id": "assignment-01", "siteId": "site-01", "workerId": "worker-01", "siteCompanyId": "site-company-self", "rosterOrder": 1, "trade": "型枠", "roles": ["siteRepresentative", "workerChief", "foreman"], "siteEntryDate": "2026-07-01", "acceptanceEducationDate": "2026-07-01", "sendOffEducationDate": "2026-06-28", "insurance": { "health": { "type": "associationKenpo" }, "pension": { "type": "employeesPension" }, "employment": { "type": "insured", "insuredNumberLast4": "0001" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-02", "siteId": "site-01", "workerId": "worker-02", "siteCompanyId": "site-company-self", "rosterOrder": 2, "trade": "とび", "roles": ["femaleWorker", "safetyHealthManager"], "siteEntryDate": "2026-07-01", "acceptanceEducationDate": "2026-07-01", "sendOffEducationDate": "2026-06-28", "insurance": { "health": { "type": "healthInsuranceAssociation", "associationName": "匿名建設健康保険組合" }, "pension": { "type": "employeesPension" }, "employment": { "type": "exempt" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-03", "siteId": "site-01", "workerId": "worker-03", "siteCompanyId": "site-company-self", "rosterOrder": 3, "trade": "配管", "roles": ["chiefEngineer"], "siteEntryDate": "2026-07-02", "acceptanceEducationDate": "2026-07-02", "sendOffEducationDate": "2026-06-29", "insurance": { "health": { "type": "constructionNationalHealth" }, "pension": { "type": "employeesPension" }, "employment": { "type": "dayLabor" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-04", "siteId": "site-01", "workerId": "worker-04", "siteCompanyId": "site-company-self", "rosterOrder": 4, "trade": "電気", "roles": [], "siteEntryDate": "2026-07-03", "acceptanceEducationDate": "2026-07-03", "sendOffEducationDate": "2026-06-30", "insurance": { "health": { "type": "nationalHealth" }, "pension": { "type": "nationalPension" }, "employment": { "type": "insured", "insuredNumberLast4": "0004" } }, "retirementFunds": { "constructionIndustry": false, "smallAndMediumEnterprise": true } },
+      { "id": "assignment-05", "siteId": "site-01", "workerId": "worker-05", "siteCompanyId": "site-company-self", "rosterOrder": 5, "trade": "重機運転", "roles": ["capabilityImprovement", "asbestosSupervisor"], "siteEntryDate": "2026-07-04", "acceptanceEducationDate": "2026-07-04", "sendOffEducationDate": "2026-07-01", "insurance": { "health": { "type": "exempt" }, "pension": { "type": "recipient" }, "employment": { "type": "insured", "insuredNumberLast4": "0005" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-06", "siteId": "site-01", "workerId": "worker-06", "siteCompanyId": "site-company-self", "rosterOrder": 6, "trade": "鉄筋", "roles": ["workerChief"], "siteEntryDate": "2026-07-05", "acceptanceEducationDate": "2026-07-05", "sendOffEducationDate": "2026-07-02", "insurance": { "health": { "type": "nationalHealth" }, "pension": { "type": "nationalPension" }, "employment": { "type": "insured", "insuredNumberLast4": "0006" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-07", "siteId": "site-01", "workerId": "worker-07", "siteCompanyId": "site-company-self", "rosterOrder": 7, "trade": "左官", "roles": ["femaleWorker"], "siteEntryDate": "2026-07-06", "acceptanceEducationDate": "2026-07-06", "sendOffEducationDate": "2026-07-03", "insurance": { "health": { "type": "associationKenpo" }, "pension": { "type": "employeesPension" }, "employment": { "type": "insured", "insuredNumberLast4": "0007" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-08", "siteId": "site-01", "workerId": "worker-08", "siteCompanyId": "site-company-self", "rosterOrder": 8, "trade": "防水", "roles": ["foreignTrainee"], "siteEntryDate": "2026-07-07", "acceptanceEducationDate": "2026-07-07", "sendOffEducationDate": "2026-07-04", "insurance": { "health": { "type": "constructionNationalHealth" }, "pension": { "type": "employeesPension" }, "employment": { "type": "insured", "insuredNumberLast4": "0008" } }, "retirementFunds": { "constructionIndustry": true, "smallAndMediumEnterprise": false } },
+      { "id": "assignment-09", "siteId": "site-01", "workerId": "worker-09", "siteCompanyId": "site-company-self", "rosterOrder": 9, "trade": "内装", "roles": ["workerChief", "safetyHealthManager", "specifiedSkilledWorker1"], "siteEntryDate": "2026-07-08", "acceptanceEducationDate": "2026-07-08", "sendOffEducationDate": "2026-07-05", "insurance": { "health": { "type": "associationKenpo" }, "pension": { "type": "employeesPension" }, "employment": { "type": "insured", "insuredNumberLast4": "0009" } }, "retirementFunds": { "constructionIndustry": false, "smallAndMediumEnterprise": true } }
+    ]
+  },
+  "companyConstructionInformation": {
+    "companies": [
+      { "id": "company-prime", "name": "匿名元請建設株式会社", "ccusBusinessId": "POC-BIZ-PRIME" },
+      { "id": "company-a", "name": "匿名一次建設株式会社", "ccusBusinessId": "POC-BIZ-FIRST" },
+      { "id": "company-b", "name": "匿名未来施工株式会社", "ccusBusinessId": "POC-BIZ-SELF" }
+    ],
+    "siteCompanies": [
+      { "id": "site-company-self", "siteId": "site-01", "firstTierCompanyId": "company-a", "rosterCompanyId": "company-b", "constructionTier": 2 }
+    ]
+  },
+  "rosterOutputInformation": {
+    "rosterDate": "2026-07-14",
+    "submissionDate": "2026-07-14",
+    "siteId": "site-01",
+    "primeCompanyId": "company-prime",
+    "templateVersion": "mlit-001389315-2021",
+    "assignmentIds": ["assignment-01", "assignment-02", "assignment-03", "assignment-04", "assignment-05", "assignment-06", "assignment-07", "assignment-08", "assignment-09"]
+  },
+  "qualificationEducationInformation": {
+    "qualifications": [
+      { "id": "qualification-01", "workerId": "worker-01", "kind": "skill", "name": "玉掛け技能講習" },
+      { "id": "qualification-02", "workerId": "worker-01", "kind": "license", "name": "一級建築施工管理技士" },
+      { "id": "qualification-03", "workerId": "worker-02", "kind": "skill", "name": "足場の組立て等作業主任者技能講習" },
+      { "id": "qualification-04", "workerId": "worker-03", "kind": "license", "name": "二級管工事施工管理技士" },
+      { "id": "qualification-05", "workerId": "worker-04", "kind": "skill", "name": "低圧電気取扱特別教育" },
+      { "id": "qualification-06", "workerId": "worker-05", "kind": "skill", "name": "非常に長い資格名称を想定した匿名試験用技能講習その一・匿名試験用技能講習その二・匿名試験用技能講習その三" },
+      { "id": "qualification-07", "workerId": "worker-06", "kind": "skill", "name": "鉄筋施工技能士講習" },
+      { "id": "qualification-08", "workerId": "worker-07", "kind": "license", "name": "一級左官技能士" },
+      { "id": "qualification-09", "workerId": "worker-08", "kind": "skill", "name": "有機溶剤作業主任者技能講習" },
+      { "id": "qualification-10", "workerId": "worker-09", "kind": "license", "name": "二級建築施工管理技士" }
+    ],
+    "educations": [
+      { "id": "education-01", "workerId": "worker-01", "kind": "employment", "name": "雇入時教育" },
+      { "id": "education-02", "workerId": "worker-01", "kind": "special", "name": "職長・安全衛生責任者教育" },
+      { "id": "education-03", "workerId": "worker-02", "kind": "employment", "name": "雇入時教育" },
+      { "id": "education-04", "workerId": "worker-03", "kind": "special", "name": "酸素欠乏危険作業特別教育" },
+      { "id": "education-05", "workerId": "worker-04", "kind": "special", "name": "フルハーネス型墜落制止用器具特別教育" },
+      { "id": "education-06", "workerId": "worker-05", "kind": "special", "name": "車両系建設機械運転特別教育" },
+      { "id": "education-07", "workerId": "worker-06", "kind": "employment", "name": "雇入時教育" },
+      { "id": "education-08", "workerId": "worker-07", "kind": "employment", "name": "雇入時教育" },
+      { "id": "education-09", "workerId": "worker-08", "kind": "special", "name": "外国人技能実習生入場教育" },
+      { "id": "education-10", "workerId": "worker-09", "kind": "employment", "name": "雇入時教育" }
+    ]
+  }
+}

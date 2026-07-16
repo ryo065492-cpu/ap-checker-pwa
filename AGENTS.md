@@ -75,3 +75,13 @@ The first audit should produce Markdown covering:
 - Preserve user data and prototype history.
 - Add tests when implementation begins.
 - Report commands run, files changed, test results, and remaining risks.
+
+## レビュー成果物の引渡し
+
+- UI・PDF・ドキュメントの変更は、検証後に `codex-review` へcommit・pushする。
+- 完了報告にはコミットSHAを必ず記載する。
+- UI変更時は `review/latest/` の確認画像を同じ固定名で更新する。
+- 新しい日付フォルダやV番号フォルダを増やさない。
+- 実データ、秘密情報、`.env`、トークン、ブラウザプロファイルをcommitしない。
+- レビュー画像・PDFは匿名データだけで作成する。
+- `main` への反映は、明示的な承認後に別途行う。

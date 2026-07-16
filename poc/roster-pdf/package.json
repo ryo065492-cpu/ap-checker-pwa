@@ -1,0 +1,22 @@
+{
+  "name": "ap-checker-roster-pdf-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "国土交通省 作業員名簿（作成例）の匿名PDF PoC",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "verify:assets": "node scripts/verify-assets.cjs",
+    "test": "node --test --test-concurrency=1 tests/roster-pdf.test.cjs",
+    "generate": "node scripts/generate.cjs",
+    "verify:output": "node scripts/verify-output.cjs",
+    "check": "npm run verify:assets && npm test && npm run generate && npm run verify:output"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "5.6.205",
+    "playwright": "1.61.1",
+    "sharp": "0.34.5"
+  }
+}
