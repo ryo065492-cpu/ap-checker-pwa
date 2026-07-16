@@ -34,6 +34,13 @@ Initial implementation priority is the worker roster domain and the production-g
 - Do not place monthly cumulative metrics on the daily-entry screen.
 - Worker master, site master, and site-specific worker data are separate entities.
 - Worker roster PDF flow is: select site, select workers, edit site-specific worker data, validate missing data, preview PDF, generate/share PDF.
+- 初期版で管理・名簿出力するのは、自社作業員のみとする。
+- 協力会社作業員、所属会社選択、複数の名簿作成会社管理は実装しない。
+- 自社情報は1社分だけ管理する。
+- 一次会社名、一次会社事業者ID、自社施工次数は現場情報として管理する。
+- 一次会社は作業員の所属会社マスターではない。
+- PDFは選択した自社作業員だけを出力する。
+- 健康診断日はMVP対象外とし、利用目的・権限・保持期間が別途承認されるまで収集しない。
 
 ## Prototype policy
 

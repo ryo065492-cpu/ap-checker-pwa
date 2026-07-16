@@ -1194,6 +1194,12 @@
           const target = document.getElementById(options.focusId);
           if (target) { target.focus({ preventScroll: true }); if (typeof options.selection === "number" && target.setSelectionRange) target.setSelectionRange(options.selection, options.selection); }
         });
+        else if (options.focusScreen) requestAnimationFrame(() => {
+          if (state.editor || confirmDialog.open) return;
+          const target = main.querySelector("h1") || main;
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+        });
       }
 
       function updateQuery(key, input) {
@@ -1209,7 +1215,7 @@
         if (state.roster && ROSTER_SCREENS.includes(screen)) state.roster.resumeScreen = screen;
         if (options.replace) history.replaceState({ screen }, "");
         else history.pushState({ screen }, "");
-        render();
+        render({ focusScreen: true });
       }
 
       function beginRoster(force = false) {
@@ -1283,7 +1289,7 @@
         } else if (multiline) control = E("textarea", { id: inputId, name, value, attrs: { placeholder } });
         else control = E("input", { id: inputId, name, type, value, attrs: { placeholder, autocomplete: "off" } });
         control.required = required;
-        const error = E("p", { className: "field-error", id: `error-${name}`, dataset: { errorFor: name }, attrs: { "aria-live": "polite" } });
+        const error = E("p", { className: "field-error", id: `error-${name}`, dataset: { errorFor: name } });
         control.setAttribute("aria-describedby", error.id);
         wrapper.append(control, error);
         formSection.append(wrapper);
@@ -1450,7 +1456,6 @@
         if (Object.keys(errors).length) {
           state.editor.errors = errors;
           showFormErrors(errors);
-          showToast(`入力内容を${Object.keys(errors).length}件確認してください`, "error");
           return;
         }
         let message = "保存しました";
@@ -1512,7 +1517,7 @@
           return;
         }
         state.screen = event.state?.screen || "home";
-        render();
+        render({ focusScreen: true });
       });
 
       window.addEventListener("beforeunload", (event) => {

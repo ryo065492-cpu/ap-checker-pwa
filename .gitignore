@@ -1,0 +1,40 @@
+# Environment and credentials
+.env
+.env.*
+!.env.example
+
+# Dependencies and test artifacts
+**/node_modules/
+**/playwright-report/
+**/test-results/
+**/blob-report/
+
+# Browser profiles and authentication state
+**/.browser-profile/
+**/.browser-profiles/
+**/browser-profile/
+**/browser-profiles/
+**/.playwright-profile/
+**/playwright-profile/
+**/chrome-profile/
+**/chromium-profile/
+**/user-data-dir/
+**/playwright/.auth/
+**/storage-state*.json
+
+# Caches and temporary files
+**/.cache/
+**/.npm/
+**/.pnpm-store/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/__pycache__/
+*.py[cod]
+**/.tmp/
+**/tmp/
+
+# Logs and OS metadata
+*.log
+.DS_Store
+Thumbs.db

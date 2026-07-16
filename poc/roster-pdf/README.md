@@ -46,9 +46,13 @@ Invoke-WebRequest 'https://www.mlit.go.jp/common/001389323.xlsx' -OutFile 'asset
 
 `sendOffEducationDate`（送り出し教育日）は内部項目として保持しますが、この国交省様式には出力しません。
 
-`companyConstructionInformation.siteCompanies` は、一次会社 `firstTierCompanyId`、名簿作成会社 `rosterCompanyId`、施工次数 `constructionTier` を別項目として保持します。元請会社は `rosterOutputInformation.primeCompanyId` で分離し、国交省様式の「一次会社名」欄には出力しません。事業者IDは各 `companies` レコードに保持します。
+`companyConstructionInformation.siteCompanies` は、一次会社 `firstTierCompanyId`、名簿作成会社 `rosterCompanyId`、施工次数 `constructionTier` を別項目として保持します。元請会社は `rosterOutputInformation.primeCompanyId` で分離し、国交省様式の「一次会社名」欄には出力しません。事業者IDは各 `companies` レコードに保持します。これはPoC生成器内部の汎用モデルであり、現在のサンプルでは `rosterCompanyId` を自社1社に固定しています。
 
 正式確認用サンプルは、元請会社・一次会社・名簿を作成する自社を別レコードで保持し、自社1社の匿名作業員9名を施工次数2次として出力します。1ページ目は8名、2ページ目は1名で、両ページの一次会社・自社名・施工次数は同一です。
+
+初期製品で管理・名簿出力するのは自社作業員だけです。自社情報は1社分とし、協力会社作業員、所属会社選択、複数の名簿作成会社管理、会社別分割は実装しません。生成器内に残る会社グループ処理は未使用の汎用内部実装であり、製品要件ではありません。一次会社名、一次会社事業者ID、自社施工次数は現場情報として扱い、一次会社を作業員の所属会社マスターとして扱いません。
+
+健康診断日はMVP対象外です。利用目的・閲覧／更新権限・保持期間が別途承認されるまで収集しません。
 
 健康保険・年金・雇用保険は種別を構造化し、表示文字列を連結して保持しません。雇用保険の通常加入者は下4桁を先頭ゼロ付き文字列で保持します。建設業退職金共済と中小企業退職金共済は個別のbooleanで保持し、帳票では `有`／`無` に変換します。
 
@@ -56,8 +60,8 @@ Invoke-WebRequest 'https://www.mlit.go.jp/common/001389323.xlsx' -OutFile 'asset
 
 - A3横（420mm × 297mm）、余白0
 - 1ページ最大8名
-- 名簿作成会社ID単位でページを分け、各社を8名ずつに分割
-- 「一次会社名」と「（　次）会社名」へ、一次会社・施工次数・名簿作成会社を別々に出力
+- 選択した自社作業員だけを出力し、8名ずつに分割
+- 「一次会社名」と「（　次）会社名」へ、現場情報の一次会社・自社施工次数と、自社1社の名称を出力
 - 健康保険と年金は左欄だけに出力し、右側の斜線欄は背景のまま空欄
 - 雇用保険は通常加入者の左欄を空欄、右欄を被保険者番号の下4桁とし、適用除外・日雇保険は左欄だけに出力
 - ※欄は制御済みの丸囲み記号で出力し、外国人技能実習生と1号特定技能外国人の同時指定を拒否
@@ -78,6 +82,7 @@ Node.js 20以上、Chromiumを取得できるPlaywright、Popplerの `pdftoppm` 
 
 ```powershell
 npm.cmd ci
+npx playwright install chromium
 # 公式Excelを未取得の場合は、上記手順で配置してから検証する
 npm.cmd run verify:assets
 npm.cmd test
