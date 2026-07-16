@@ -5,9 +5,13 @@
 Before doing any work, read these files in order:
 
 1. `docs/PROJECT_HANDOFF_JA.md`
-2. `docs/CODEX_HANDOFF_JA.md`
-3. `deme-ui-foundation-v6/index.html`
-4. `deme-roster-master-v9/index.html`
+2. `docs/SECURITY_REQUIREMENTS_JA.md`
+3. `docs/PRODUCTION_ARCHITECTURE_JA.md`
+4. `docs/PRODUCTION_SETUP_CHECKLIST_JA.md`
+5. `docs/IMPLEMENTATION_STATUS_JA.md`
+6. `docs/CODEX_HANDOFF_JA.md`
+7. `deme-ui-foundation-v6/index.html`
+8. `deme-roster-master-v9/index.html`
 
 ## Project goal
 
@@ -41,6 +45,20 @@ Initial implementation priority is the worker roster domain and the production-g
 - 一次会社は作業員の所属会社マスターではない。
 - PDFは選択した自社作業員だけを出力する。
 - 健康診断日はMVP対象外とし、利用目的・権限・保持期間が別途承認されるまで収集しない。
+
+## Production security requirements
+
+- Production is a single-customer environment owned by the customer.
+- The customer owns the production repository, hosting, Supabase project, domain, billing, monitoring, logs, and backups.
+- After handoff, the contractor must not retain production membership, secrets, database access, log access, backup access, or deployment access.
+- Development, review, and support use anonymous synthetic data only. Never copy production data into development or preview environments.
+- Production is invite-only and requires individual accounts and MFA.
+- Protect all exposed tables, views, functions, and storage with deny-by-default RLS or equivalent server-side authorization.
+- Keep secret/service-role keys out of browsers, Git, logs, chat, preview builds, and developer machines after handoff.
+- The initial release is online-only. Do not persist PII in localStorage, sessionStorage, IndexedDB, or Service Worker caches.
+- Prefer client-side roster PDF generation without server or Storage persistence. Any fallback server generation requires a separate security review.
+- Do not add real data until every P0 gate in `docs/SECURITY_REQUIREMENTS_JA.md` is complete.
+- The production source is developed with anonymous data, then transferred to a customer-owned private repository. Customer approval and customer-controlled CI are required for production deployment.
 
 ## Prototype policy
 

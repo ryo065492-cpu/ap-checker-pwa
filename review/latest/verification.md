@@ -2,6 +2,33 @@
 
 検証日: 2026-07-16
 
+## 本番セキュリティ方針更新
+
+顧客所有の1社専用本番、納品後の開発者アクセス0、匿名開発、招待制Auth、全利用者MFA、RLS、オンライン専用、ブラウザ内PDF生成を本番の固定前提として文書化した。
+
+今回の対象:
+
+- `AGENTS.md`
+- `docs/ARCHITECTURE_AUDIT_JA.md`
+- `docs/CODEX_HANDOFF_JA.md`
+- `docs/PROJECT_HANDOFF_JA.md`
+- `docs/IMPLEMENTATION_STATUS_JA.md`
+- `docs/PRODUCTION_ARCHITECTURE_JA.md`
+- `docs/PRODUCTION_SETUP_CHECKLIST_JA.md`
+- `docs/SECURITY_REQUIREMENTS_JA.md`
+
+今回の確認:
+
+- `git diff --check`: 成功
+- `poc/`、`deme-ui-foundation-v6/index.html`、`deme-roster-master-v9/index.html`: `origin/main`との差分0件
+- Markdownコードフェンス: 整合
+- 実データ、秘密情報、個人PC絶対パス: 0件
+- 文書横断レビュー: 資格証明書非収集、静的帳票asset、snapshot非保存、隔離復元試験、Auth/RLS先行の実装順へ統一
+- PDFのブラウザ非依存テスト: 6/6成功
+- PDFの全10テスト: 今回は検証用Chromiumを実行環境へ取得できず再実行未完了。PoCコードは変更しておらず、直前の10/10成功証跡を下記に保持
+
+この更新だけで本番利用可能になったとは判定しない。現在の本番利用可能状態は0%で、実データ投入には`docs/SECURITY_REQUIREMENTS_JA.md`のP0全件合格が必要である。
+
 ## 対象ファイル
 
 - `AGENTS.md`
